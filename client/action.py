@@ -1,12 +1,18 @@
 """
 This module contains Action API functions.
 """
-from arsenal import ArsenalObject
+from .arsenal import ArsenalObject
 
 class Action(ArsenalObject):
     """
     This object represents an Action from the teamserver.
     """
+
+    action_id = None
+    status = None
+    target_name = None
+    action_string = None
+
     @staticmethod
     def create_action(target_name, action_string, bound_session_id=None):
         """

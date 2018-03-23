@@ -3,9 +3,9 @@ This module contains shared resources that modules in the library can use.
 """
 import requests
 
-from config import TEAMSERVER_URI
+from .config import TEAMSERVER_URI
 
-class ArsenalObject(object):
+class ArsenalObject(object): # pylint: disable=too-few-public-methods
     """
     This object contains common-purpose functions that other modules will inherit from.
     """
@@ -17,7 +17,7 @@ class ArsenalObject(object):
             self.__setattr__(key, value)
 
     @property
-    def json(arsenal_object):
+    def json(self, arsenal_object):
         """
         Get a JSON representation of the object.
         """

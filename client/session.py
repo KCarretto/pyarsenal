@@ -1,12 +1,17 @@
 """
 This module contains Action API functions.
 """
-from arsenal import ArsenalObject
+from .arsenal import ArsenalObject
+from .action import Action
 
 class Session(ArsenalObject):
     """
     This object represents a Session from the teamserver.
     """
+
+    session_id = None
+    status = None
+
     @staticmethod
     def create_session(
             mac_addrs,
@@ -53,7 +58,7 @@ class Session(ArsenalObject):
             session_id=session_id)
 
     @staticmethod
-    def session_checkin(session_id, responses=None)
+    def session_checkin(session_id, responses=None):
         """
         Checks in a Session. Optionally you may include any
         responses from Actions that were completed. The API call
@@ -84,6 +89,7 @@ class Session(ArsenalObject):
 
         resp = ArsenalObject._call(
             'UpdateSessionConfig',
+            session_id=session_id,
             interval=interval,
             interval_delta=interval_delta,
             servers=servers,
@@ -107,7 +113,7 @@ class Session(ArsenalObject):
             # TODO: Handle exception
             pass
 
-        return [Sesion(session) for session_id, session in resp['sessions'].items()]
+        return [Session(session) for session_id, session in resp['sessions'].items()]
 
     @staticmethod
     def _list_sessions_raw():

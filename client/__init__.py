@@ -1,3 +1,6 @@
-from action import Action
-from session import Session
-from client import ArsenalClient
+"""
+This package contains objects and methods for interacting with the Arsenal teamserver API.
+"""
+from .action import Action
+from .session import Session
+from .client import ArsenalClient
