@@ -76,7 +76,6 @@ class Session(ArsenalObject):
         """
         Updates a Session's configuration.
         Settings include interval, interval_delta, servers, config_dict.
-
         """
         interval = kwargs.get('interval', None)
         interval_delta = kwargs.get('interval_delta', None)
