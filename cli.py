@@ -6,9 +6,13 @@ and may be called from the command line.
 import colorama
 import fire
 
-from pyclient.action import Action
-from pyclient.session import Session
-
+try:
+    # Attempt relative import, will not work if __main__
+    from pyclient.action import Action
+    from pyclient.session import Session
+except ImportError:
+    from pyclient.action import Action
+    from pyclient.session import Session
 
 class ArsenalClient(object):
     """
