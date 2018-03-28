@@ -31,8 +31,8 @@ class Session(ArsenalObject):
             config_dict=config_dict)
 
         if resp.get('error', True):
-            # TODO: Handle exception
-            pass
+            print('ERROR: Could not create session. {}'.format(resp.get('description')))
+            return None
 
         return resp['session_id']
 
