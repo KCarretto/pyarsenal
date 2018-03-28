@@ -34,7 +34,6 @@ class Session(ArsenalObject):
             print('ERROR: Could not create session. {}'.format(resp.get('description')))
             return None
 
-        print("Session Created: {}".format(resp['session_id']))
         return resp['session_id']
 
     @staticmethod
@@ -67,12 +66,15 @@ class Session(ArsenalObject):
         new actions or configuration changes.
         """
         resp = ArsenalObject._call(
-            'SessionCheckin',
+            'SessionCheckIn',
             session_id=session_id,
             responses=responses)
+
+        if resp.get('error', True):
+            print('ERROR: Could not checkin session. {}'.format(resp.get('description')))
+
         actions = resp.get('actions', [])
 
-        print("Existing Session Checkin: {}".format(resp['session_id']))
         return {
             'session_id': resp['session_id'],
             'actions': [Action(action) for action in actions]
