@@ -8,8 +8,8 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from pyclient.action import Action
-    from pyclient.session import Session
+    from .pyclient.action import Action
+    from .pyclient.session import Session
 except ImportError:
     from pyclient.action import Action
     from pyclient.session import Session
