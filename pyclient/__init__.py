@@ -3,3 +3,4 @@ This package contains objects and methods for interacting with the Arsenal teams
 """
 from .action import Action
 from .session import Session
+from .log import Log

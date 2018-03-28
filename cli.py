@@ -11,13 +11,11 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient.action import Action
-    from .pyclient.session import Session
-    from .pyclient.log import Log
+    from .pyclient import Action, Session, Log
+    from .pyclient.exceptions import handle_exceptions
 except ImportError:
-    from pyclient.action import Action
-    from pyclient.session import Session
-    from pyclient.log import Log
+    from pyclient import Action, Session, Log
+    from pyclient.exceptions import handle_exceptions
 
 class ArsenalClient(object):
     """
@@ -129,6 +127,7 @@ class ArsenalClient(object):
     ###############################################################################################
     #                              Action Methods                                                 #
     ###############################################################################################
+    @handle_exceptions
     def CreateAction(self, target_name, action_string, bound_session_id=None): #pylint: disable=invalid-name
         """
         This method creates an Action for the given Target.
@@ -143,6 +142,7 @@ class ArsenalClient(object):
         self._output('Action created. \
         You can track it\'s progress using this action_id: `{}`'.format(action_id))
 
+    @handle_exceptions
     def GetAction(self, action_id): #pylint: disable=invalid-name
         """
         This method fetches an Action from the teamserver.
@@ -160,6 +160,7 @@ class ArsenalClient(object):
         self._output('\taction: {}'.format(self._yellow(action.action_string)))
         # TODO: Include response
 
+    @handle_exceptions
     def CancelAction(self, action_id): #pylint: disable=invalid-name
         """
         This attempts to cancel an Action.
@@ -174,6 +175,7 @@ class ArsenalClient(object):
         else:
             self._output(self._red('Could not cancel Action `{}`.'.format(action_id)))
 
+    @handle_exceptions
     def ListActions(self): #pylint: disable=invalid-name
         """
         This lists all Actions that are currently tracked by the teamserver.
@@ -196,6 +198,7 @@ class ArsenalClient(object):
     ###############################################################################################
     #                              Session Methods                                                #
     ###############################################################################################
+    @handle_exceptions
     def GetSession(self, session_id): #pylint: disable=invalid-name
         """
         This method fetches an Session from the teamserver.
@@ -213,6 +216,7 @@ class ArsenalClient(object):
         self._output(pformat(session.config))
         self._output('\n\n\tsession_id: {}'.format(self._blue(session.session_id)))
 
+    @handle_exceptions
     def ListSessions(self): #pylint: disable=invalid-name
         """
         This lists all Sessions that are currently tracked by the teamserver.
@@ -233,6 +237,7 @@ class ArsenalClient(object):
     ###############################################################################################
     #                                 Log Methods                                                 #
     ###############################################################################################
+    @handle_exceptions
     def ListLogs(self, application=None, since=None, include_archived=None):  #pylint: disable=invalid-name
         """
         This lists logs from the teamserver, and may be optionally filtered.
