@@ -9,10 +9,13 @@ class ArsenalObject(object): # pylint: disable=too-few-public-methods
     """
     This object contains common-purpose functions that other modules will inherit from.
     """
+    raw_json = None
+
     def __init__(self, object_json):
         """
         This constructor takes json and sets the objects attributes accordingly.
         """
+        self.raw_json = object_json
         for key, value in object_json.items():
             self.__setattr__(key, value)
 
