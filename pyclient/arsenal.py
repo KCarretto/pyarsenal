@@ -2,8 +2,10 @@
 This module contains shared resources that modules in the library can use.
 """
 import requests
+from requests.exceptions import ContentDecodingError
 
 from .config import TEAMSERVER_URI
+from .exceptions import ServerConnectionError, ServerInternalError
 
 class ArsenalObject(object): # pylint: disable=too-few-public-methods
     """
@@ -38,4 +40,9 @@ class ArsenalObject(object): # pylint: disable=too-few-public-methods
                 params[key] = value
         params['method'] = method
 
-        return requests.post(TEAMSERVER_URI, json=params).json()
+        try:
+            return requests.post(TEAMSERVER_URI, json=params).json()
+        except ContentDecodingError:
+            raise ServerInternalError("Teamserver encountered an unexpected error.")
+        except Exception as exception:
+            raise ServerConnectionError("Could not connect to teamserver. {}".format(exception))
