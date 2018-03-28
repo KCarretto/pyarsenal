@@ -3,6 +3,7 @@ This module includes a class that contains all API functions,
 and may be called from the command line.
 """
 from pprint import pformat
+from datetime import datetime
 
 import time
 import colorama
@@ -12,9 +13,11 @@ try:
     # Attempt relative import, will not work if __main__
     from .pyclient.action import Action
     from .pyclient.session import Session
+    from .pyclient.log import Log
 except ImportError:
     from pyclient.action import Action
     from pyclient.session import Session
+    from pyclient.log import Log
 
 class ArsenalClient(object):
     """
@@ -90,6 +93,17 @@ class ArsenalClient(object):
 
         return status
 
+    def _format_loglevel(self, level):
+        loglevel = level.lower()
+        if loglevel == 'debug':
+            level = self._purple(level)
+        elif loglevel == 'info':
+            level = self._green(level)
+        elif loglevel == 'warn':
+            level = self._yellow(level)
+        else:
+            level = self._red(level)
+        return level
 
     ###############################################################################################
     #                              Help Methods                                                   #
@@ -215,6 +229,28 @@ class ArsenalClient(object):
                     session.target_name))
         else:
             self._output(self._red('No Sessions were found.'))
+
+    ###############################################################################################
+    #                                 Log Methods                                                 #
+    ###############################################################################################
+    def ListLogs(self, application=None, since=None, include_archived=None):  #pylint: disable=invalid-name
+        """
+        This lists logs from the teamserver, and may be optionally filtered.
+
+        Args:
+            application(optional): The Application to filter for.
+            since(optional): All logs returned will have a timestamp greater than this.
+            include_archived(optional): Should archived logs be included in the search.
+        """
+        logs = Log.list_logs(application, since, include_archived)
+        for log in logs:
+            timestamp = datetime.fromtimestamp(log.timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            self._output('[{}][{}]\t[{}]\t{}'.format(
+                timestamp,
+                self._blue(log.application),
+                self._format_loglevel(log.level),
+                log.message
+            ))
 
 if __name__ == '__main__':
     fire.Fire(ArsenalClient)

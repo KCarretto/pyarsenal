@@ -9,8 +9,8 @@ class Session(ArsenalObject):
     This object represents a Session from the teamserver.
     """
 
-    target_name = None
     session_id = None
+    target_name = None
     status = None
     timestamp = None
     config = None
