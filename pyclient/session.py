@@ -61,7 +61,7 @@ class Session(ArsenalObject):
             session_id=session_id)
 
     @staticmethod
-    def session_checkin(session_id, responses=None):
+    def session_checkin(session_id, responses=None, config=None, facts=None):
         """
         Checks in a Session. Optionally you may include any
         responses from Actions that were completed. The API call
@@ -71,7 +71,9 @@ class Session(ArsenalObject):
         resp = ArsenalObject._call(
             'SessionCheckIn',
             session_id=session_id,
-            responses=responses)
+            responses=responses,
+            config=config,
+            facts=facts)
 
         if resp.get('error', True):
             print('ERROR: Could not checkin session. {}'.format(resp.get('description')))
