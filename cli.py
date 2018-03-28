@@ -227,7 +227,7 @@ class ArsenalClient(object):
         sessions = Session.list_sessions()
         if sessions:
             for session in sessions:
-                self._output('[{}][{}]\t (Target: {})'.format(
+                self._output('[{}]\t[{}]\t (Target: {})'.format(
                     self._format_session_status(session.status),
                     self._blue(session.session_id),
                     session.target_name))
