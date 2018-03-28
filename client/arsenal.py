@@ -3,7 +3,7 @@ This module contains shared resources that modules in the library can use.
 """
 import requests
 
-from .config import TEAMSERVER_URI
+from config import TEAMSERVER_URI
 
 class ArsenalObject(object): # pylint: disable=too-few-public-methods
     """

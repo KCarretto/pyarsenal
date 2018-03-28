@@ -5,8 +5,8 @@ and may be called from the command line.
 import colorama
 import fire
 
-from .action import Action
-from .session import Session
+from action import Action
+from session import Session
 
 
 class ArsenalClient(object):
