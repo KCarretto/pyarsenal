@@ -31,7 +31,8 @@ class ArsenalObject(object): # pylint: disable=too-few-public-methods
         params = {}
 
         for key, value in kwargs.items():
-            params[key] = value
+            if value is not None:
+                params[key] = value
         params['method'] = method
 
         return requests.post(TEAMSERVER_URI, json=params).json()
