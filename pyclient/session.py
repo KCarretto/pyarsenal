@@ -9,8 +9,11 @@ class Session(ArsenalObject):
     This object represents a Session from the teamserver.
     """
 
+    target_name = None
     session_id = None
     status = None
+    timestamp = None
+    config = None
 
     @staticmethod
     def create_session(

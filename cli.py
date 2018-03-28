@@ -2,7 +2,9 @@
 This module includes a class that contains all API functions,
 and may be called from the command line.
 """
+from pprint import pformat
 
+import time
 import colorama
 import fire
 
@@ -190,8 +192,12 @@ class ArsenalClient(object):
         session = Session.get_session(session_id)
 
         self._output(self._green('Session Found:\n'))
-        self._output('\tsession_id: {}'.format(self._blue(session.session_id)))
+        self._output('\ttarget: {}'.format(self._yellow(session.target_name)))
         self._output('\tstatus: {}'.format(self._format_session_status(session.status)))
+        self._output('\tLast Seen: {}s ago'.format(time.time() - session.timestamp))
+        self._output('\tconfig:')
+        self._output(pformat(session.config))
+        self._output('\n\n\tsession_id: {}'.format(self._blue(session.session_id)))
 
     def ListSessions(self): #pylint: disable=invalid-name
         """
