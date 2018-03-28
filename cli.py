@@ -6,8 +6,8 @@ and may be called from the command line.
 import colorama
 import fire
 
-from client.action import Action
-from client.session import Session
+from pyclient.action import Action
+from pyclient.session import Session
 
 
 class ArsenalClient(object):

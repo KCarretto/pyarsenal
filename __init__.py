@@ -2,6 +2,6 @@
 """
 This package contains objects and methods for interacting with the Arsenal teamserver API.
 """
-from .client import Action
-from .client import Session
+from .pyclient import Action
+from .pyclient import Session
 from .cli import ArsenalClient
