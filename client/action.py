@@ -1,7 +1,7 @@
 """
 This module contains Action API functions.
 """
-from client.arsenal import ArsenalObject
+from .arsenal import ArsenalObject
 
 class Action(ArsenalObject):
     """

@@ -4,3 +4,4 @@ This package contains objects and methods for interacting with the Arsenal teams
 """
 from .client import Action
 from .client import Session
+from .cli import ArsenalClient

@@ -6,15 +6,9 @@ and may be called from the command line.
 import colorama
 import fire
 
-try:
-    from client.action import Action
-    from client.session import Session
-except ImportError:
-    import sys
-    from os.path import abspath, dirname
-    sys.path.append(abspath(dirname(dirname(__file__))))
-    from client.action import Action
-    from client.session import Session
+from client.action import Action
+from client.session import Session
+
 
 class ArsenalClient(object):
     """
