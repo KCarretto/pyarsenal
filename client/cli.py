@@ -2,12 +2,19 @@
 This module includes a class that contains all API functions,
 and may be called from the command line.
 """
+
 import colorama
 import fire
 
-from action import Action
-from session import Session
-
+try:
+    from client.action import Action
+    from client.session import Session
+except ImportError:
+    import sys
+    from os.path import abspath, dirname
+    sys.path.append(abspath(dirname(dirname(__file__))))
+    from client.action import Action
+    from client.session import Session
 
 class ArsenalClient(object):
     """

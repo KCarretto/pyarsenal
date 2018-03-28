@@ -1,8 +1,8 @@
 """
 This module contains Action API functions.
 """
-from arsenal import ArsenalObject
-from action import Action
+from client.arsenal import ArsenalObject
+from client.action import Action
 
 class Session(ArsenalObject):
     """
