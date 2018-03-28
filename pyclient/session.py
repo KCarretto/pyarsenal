@@ -16,12 +16,13 @@ class Session(ArsenalObject):
     config = None
 
     @staticmethod
-    def create_session(
+    def create_session( #pylint: disable=too-many-arguments
             mac_addrs,
             servers=None,
             interval=None,
             interval_delta=None,
-            config_dict=None):
+            config_dict=None,
+            facts=None):
         """
         This method creates an Session, and returns it's session_id.
         """
@@ -31,7 +32,8 @@ class Session(ArsenalObject):
             servers=servers,
             interval=interval,
             interval_delta=interval_delta,
-            config_dict=config_dict)
+            config_dict=config_dict,
+            facts=facts)
 
         if resp.get('error', True):
             print('ERROR: Could not create session. {}'.format(resp.get('description')))
