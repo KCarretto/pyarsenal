@@ -34,6 +34,7 @@ class Session(ArsenalObject):
             print('ERROR: Could not create session. {}'.format(resp.get('description')))
             return None
 
+        print("Session Created: {}".format(resp['session_id']))
         return resp['session_id']
 
     @staticmethod
@@ -71,6 +72,7 @@ class Session(ArsenalObject):
             responses=responses)
         actions = resp.get('actions', [])
 
+        print("Existing Session Checkin: {}".format(resp['session_id']))
         return {
             'session_id': resp['session_id'],
             'actions': [Action(action) for action in actions]
