@@ -14,6 +14,10 @@ class Action(ArsenalObject):
     target_name = None
     action_string = None
 
+    queue_time = None
+    sent_time = None
+    complete_time = None
+
     response = None
 
     @staticmethod

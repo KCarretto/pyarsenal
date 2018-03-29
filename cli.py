@@ -278,13 +278,20 @@ class ArsenalClient(object):
             name: The name of the Target to search for.
             showfacts: Set True to display all facts
         """
-        target = Target.get_target(name)
+        target = Target.get_target(
+            name,
+            include_status=True,
+            include_groups=True,
+            include_actions=not hide_actions,
+            include_facts=True)
 
         if target:
             self._output(self._green('Target Found:\n'))
             self._output('\tname: {}'.format(target.name))
             self._output('\tstatus: {}'.format(self._format_session_status(target.status)))
-            self._output('\tLast Seen: {}s ago'.format(time.time() - target.lastseen))
+            self._output('\tLast Seen: {}s ago'.format(
+                self._yellow(int(time.time() - target.lastseen))))
+            self._output('\tGroups: {}'.format(self._green(target.groups)))
             self._output('\n\tHostname: {}'.format(
                 self._yellow(target.facts.get('hostname', 'unknown hostname'))))
             ip_addrs = []
@@ -296,13 +303,20 @@ class ArsenalClient(object):
                             ip_addrs.append(addr)
             self._output('\tIP Addresses: {}'.format(self._yellow(', '.join(sorted(ip_addrs)))))
             if not hide_actions:
-                actions = Target.list_target_actions(target.name)
-                if actions:
+                if target.actions:
                     self._output('\n\nActions:')
-                for action in actions:
-                    self._output('\naction_id: {}'.format(self._blue(action.action_id)))
-                    self._output('action: {}'.format(self._yellow(action.action_string)))
-                    self._output('status: {}'.format(self._format_action_status(action.status)))
+
+                    actions = sorted(
+                        target.actions,
+                        key=lambda x: x.get('queue_time', 0),
+                        reverse=True)
+
+                    for action in actions:
+                        self._output('\naction_id: {}'.format(self._blue(action.get('action_id'))))
+                        self._output('action: {}'.format(self._yellow(action.get('action_string'))))
+                        self._output('status: {}'.format(
+                            self._format_action_status(
+                                action.get('status'))))
 
             if show_facts:
                 self._output('\nAll Facts:')
@@ -310,6 +324,17 @@ class ArsenalClient(object):
         else:
             self._output(self._red('Target not found.'))
 
+    @handle_exceptions
+    def RenameTarget(self, name, new_name): #pylint: disable=invalid-name
+        """
+        This renames a target with the given name, to the new_name.
+
+        Args:
+            name: The current name of the target.
+            new_name: The desired name of the target.
+        """
+        Target.rename_target(name, new_name)
+        self._output(self._green('Target renamed successfully.'))
 
     @handle_exceptions
     def ListTargets(self): #pylint: disable=invalid-name
@@ -319,10 +344,10 @@ class ArsenalClient(object):
         Args:
             None
         """
-        targets = Target.list_targets()
+        targets = Target.list_targets(True, False, False, False, True, False)
         if targets:
             for target in sorted(targets, key=lambda x: x.name):
-                groups = Target.list_target_groups(target.name)
+                groups = target.groups
                 self._output('[{}]\t{}\tgroups: {}'.format(
                     self._format_session_status(target.status),
                     self._blue(target.name),
