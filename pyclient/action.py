@@ -2,6 +2,7 @@
 This module contains Action API functions.
 """
 from .arsenal import ArsenalObject
+from .exceptions import parse_error
 
 class Action(ArsenalObject):
     """
@@ -25,8 +26,7 @@ class Action(ArsenalObject):
             bound_session_id=bound_session_id)
 
         if resp.get('error', True):
-            # TODO: Handle exception
-            pass
+            parse_error(resp)
 
         return resp['action_id']
 
@@ -36,10 +36,8 @@ class Action(ArsenalObject):
         Returns an Action object from the teamserver.
         """
         resp = Action._get_action_raw(action_id)
-        print(resp)
         if resp.get('error', True):
-            # TODO: Handle exception
-            pass
+            parse_error(resp)
 
         return Action(resp['action'])
 
@@ -74,8 +72,7 @@ class Action(ArsenalObject):
         resp = Action._list_actions_raw()
 
         if resp.get('error', True):
-            # TODO: Handle exception
-            pass
+            parse_error(resp)
 
         return [Action(action) for action_id, action in resp['actions'].items()]
 

@@ -11,10 +11,10 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient import Action, Session, Log
+    from .pyclient import Action, Session, Target, Log
     from .pyclient.exceptions import handle_exceptions
 except ImportError:
-    from pyclient import Action, Session, Log
+    from pyclient import Action, Session, Target, Log
     from pyclient.exceptions import handle_exceptions
 
 class ArsenalClient(object):
@@ -233,6 +233,28 @@ class ArsenalClient(object):
                     session.target_name))
         else:
             self._output(self._red('No Sessions were found.'))
+    ###############################################################################################
+    #                               Target Methods                                                #
+    ###############################################################################################
+    @handle_exceptions
+    def ListTargets(self): #pylint: disable=invalid-name
+        """
+        This lists all Targets that are currently tracked by the teamserver.
+
+        Args:
+            None
+        """
+        targets = Target.list_targets()
+        if targets:
+            for target in targets:
+                groups = Target.list_target_groups(target.name)
+                self._output('[{}]\t{}\tgroups: {}'.format(
+                    self._format_session_status(target.status),
+                    self._blue(target.name),
+                    self._green(', '.join(groups) if groups else 'None')
+                ))
+        else:
+            self._output(self._red('No Targets were found.'))
 
     ###############################################################################################
     #                                 Log Methods                                                 #

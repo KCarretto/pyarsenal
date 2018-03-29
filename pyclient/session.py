@@ -3,7 +3,7 @@ This module contains Action API functions.
 """
 from .arsenal import ArsenalObject
 from .action import Action
-from .exceptions import APIException, SessionNotFound, TargetNotFound
+from .exceptions import parse_error
 
 class Session(ArsenalObject):
     """
@@ -37,8 +37,7 @@ class Session(ArsenalObject):
             facts=facts)
 
         if resp.get('error', True):
-            raise APIException('Could not create session: {}'.format(
-                resp.get('description', 'No description provided.')))
+            parse_error(resp)
 
         return resp['session_id']
 
@@ -49,10 +48,7 @@ class Session(ArsenalObject):
         """
         resp = Session._get_session_raw(session_id)
         if resp.get('error', True):
-            if resp.get('status') == 404:
-                raise SessionNotFound("Requested session was not found")
-            raise APIException('Could not get session: {}'.format(
-                resp.get('description', 'No description provided.')))
+            parse_error(resp)
 
         return Session(resp['session'])
 
@@ -81,12 +77,7 @@ class Session(ArsenalObject):
             facts=facts)
 
         if resp.get('error', True):
-            if resp.get('status') == 404:
-                raise SessionNotFound("Could not check in session because it does not exist.")
-            elif resp.get('status') == 417:
-                raise TargetNotFound("Session's Target was not found.")
-            raise APIException('Could not check in session: {}'.format(
-                resp.get('description', 'No description provided.')))
+            parse_error(resp)
 
         actions = resp.get('actions', [])
 
@@ -116,10 +107,7 @@ class Session(ArsenalObject):
         )
 
         if resp.get('error', True):
-            if resp.get('status') == 404:
-                raise SessionNotFound("Could not update session because it does not exist.")
-            raise APIException('Could not update session: {}'.format(
-                resp.get('description', 'No description provided.')))
+            parse_error(resp)
 
         return resp.get('config', {})
 
@@ -131,15 +119,14 @@ class Session(ArsenalObject):
         resp = Session._list_sessions_raw()
 
         if resp.get('error', True):
-            raise APIException('Could not list sessions: {}'.format(
-                resp.get('description', 'No description provided.')))
+            parse_error(resp)
 
         return [Session(session) for session_id, session in resp['sessions'].items()]
 
     @staticmethod
     def _list_sessions_raw():
         """
-        Returns the raw response of the ListActions API call.
+        Returns the raw response of the ListSessions API call.
         """
         return ArsenalObject._call(
             'ListSessions'

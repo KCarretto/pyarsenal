@@ -2,6 +2,7 @@
 This module contains Log API functions.
 """
 from .arsenal import ArsenalObject
+from .exceptions import parse_error
 
 class Log(ArsenalObject):
     """
@@ -28,7 +29,7 @@ class Log(ArsenalObject):
             message=message)
 
         if resp.get('error', True):
-            print('ERROR: Could not create log. {}'.format(resp.get('description')))
+            parse_error(resp)
 
     @staticmethod
     def list_logs(
@@ -45,6 +46,6 @@ class Log(ArsenalObject):
             include_archived=include_archived)
 
         if resp.get('error', True):
-            print('ERROR: Could not list logs. {}'.format(resp.get('description')))
+            parse_error(resp)
 
         return [Log(log_data) for log_data in resp['logs']]

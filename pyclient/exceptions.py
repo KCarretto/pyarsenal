@@ -19,19 +19,101 @@ class APIException(Exception):
     """
     Raised when the teamserver API returns an error.
     """
-    pass
+    name = 'unhandled-exception'
 
-class SessionNotFound(APIException):
+class ActionUnboundSession(APIException):
     """
-    Raised when a Session was queried, and does not exist.
+    This exception is raised when the Session that an Action was assigned to no longer exists.
     """
-    pass
+    name = 'action-unbound-session'
 
-class TargetNotFound(APIException):
+class SessionUnboundTarget(APIException):
     """
-    Raised when a Target was not found.
+    This exception is raised when a Session's Target does not exist.
     """
-    pass
+    name = 'session-unbound-target'
+
+class CannotCancelAction(APIException):
+    """
+    This exception is raised when an attempt to cancel an action is made
+    but cannot be completed.
+    """
+    name = 'cannot-cancel-action'
+
+class CannotAssignAction(APIException):
+    """
+    This exception is raised when an Action is unable to be assigned to the given session_id.
+    """
+    name = 'cannot-assign-action'
+
+class CannotBindAction(APIException):
+    """
+    This exception is raised when an Action is attempted to be assigned to a
+    Target that does not exist.
+    """
+    name = 'cannot-bind-action'
+
+class ActionSyntaxError(APIException):
+    """
+    This exception is raised when an error was encountered while parsing an action string.
+    """
+    name = 'action-syntax-error'
+
+class MembershipError(APIException):
+    """
+    This exception is raised when an attempt to modify group membership is made
+    and cannot be completed.
+    """
+    name = 'membership-error'
+
+class ValidationError(APIException):
+    """
+    Raised when data sent to the teamserver does not meet constraints.
+    """
+    name = 'validation-error'
+
+class ResourceNotFound(APIException):
+    """
+    Raised when a resource was not found.
+    """
+    name = 'resource-not-found'
+
+class ResourceAlreadyExists(APIException):
+    """
+    Raised when a resource already exists.
+    """
+    name = 'resource-already-exists'
+
+class MissingParameter(APIException):
+    """
+    Raised when an API call was not sent a required parameter.
+    """
+    name = 'missing-parameter'
+
+def parse_error(data):
+    """
+    Parse an error response and raise the appropriate exception.
+    """
+    errors = {
+        APIException.name: APIException,
+        ActionUnboundSession.name: ActionUnboundSession,
+        SessionUnboundTarget.name: SessionUnboundTarget,
+        CannotCancelAction.name: CannotCancelAction,
+        CannotAssignAction.name: CannotAssignAction,
+        CannotBindAction.name: CannotBindAction,
+        ActionSyntaxError.name: ActionSyntaxError,
+        MembershipError.name: MembershipError,
+
+        ValidationError.name: ValidationError,
+        ResourceNotFound.name: ResourceNotFound,
+        ResourceAlreadyExists.name: ResourceAlreadyExists,
+        MissingParameter.name: MissingParameter,
+    }
+    error_type = data.get('error_type', APIException.name)
+
+    exception = errors.get(error_type, APIException)
+
+    raise exception(data.get('description'), 'No description available.')
 
 def handle_exceptions(func):
     """
