@@ -103,6 +103,32 @@ class ArsenalClient(object):
             level = self._red(level)
         return level
 
+    def _format_facts(self, facts, indent=8):
+        format_str = ''
+        i = ' '*indent
+        for key, value in facts.items():
+            if isinstance(value, dict):
+                format_str = '{}\n{}{}: {}'.format(
+                    format_str, i, key, self._format_facts(value, indent*2))
+            elif isinstance(value, list):
+                if value:
+                    if isinstance(value[0], dict):
+                        for subval in value:
+                            format_str = '{}\n{}{}: {}'.format(
+                                format_str, i, key, self._format_facts(subval, indent*2))
+                    else:
+                        format_str = '{}\n{}{}: {}'.format(
+                            format_str, i, key, value)
+                else:
+                    format_str = '{}\n{}{}: {}'.format(
+                        format_str, i, key, '[]'
+                    )
+            else:
+                format_str = '{}\n{}{}: {}'.format(
+                    format_str, i, key, value
+                )
+        return format_str
+
     ###############################################################################################
     #                              Help Methods                                                   #
     ###############################################################################################
@@ -236,6 +262,55 @@ class ArsenalClient(object):
     ###############################################################################################
     #                               Target Methods                                                #
     ###############################################################################################
+    @handle_exceptions
+    def GetTarget(self, name, show_facts=False, hide_actions=False): #pylint: disable=invalid-name
+        """
+        Fetch information about a Target.
+
+        Args:
+            name: The name of the Target to search for.
+            showfacts: Set True to display all facts
+        """
+        target = Target.get_target(name)
+
+        if target:
+            self._output(self._green('Target Found:\n'))
+            self._output('\tname: {}'.format(target.name))
+            self._output('\tstatus: {}'.format(self._format_session_status(target.status)))
+            self._output('\tLast Seen: {}s ago'.format(time.time() - target.lastseen))
+            self._output('\n\tHostname: {}'.format(
+                self._yellow(target.facts.get('hostname', 'unknown hostname'))))
+            ip_addrs = []
+            for iface in target.facts.get('interfaces', []):
+                addrs = iface.get('ip_addrs')
+                if addrs:
+                    for addr in addrs:
+                        if addr != '127.0.0.1' and not addr.startswith('169.254'):
+                            ip_addrs.append(addr)
+            self._output('\tIP Addresses: {}'.format(self._yellow(', '.join(sorted(ip_addrs)))))
+            if not hide_actions:
+                actions = Target.list_target_actions(target.name)
+                if actions:
+                    self._output('\n\nActions:')
+                for action in actions:
+                    self._output('\naction_id: {}'.format(self._blue(action.action_id)))
+                    self._output('action: {}'.format(self._yellow(action.action_string)))
+                    self._output('status: {}'.format(self._format_action_status(action.status)))
+                    if action.response:
+                        stdout = action.response.get('stdout')
+                        stderr = action.response.get('stderr')
+                        if stdout:
+                            self._output('stdout:\n{}\n'.format(self._green(stdout)))
+                        if action.stdout:
+                            self._output('stderr:\n{}\n'.format(self._red(stderr)))
+
+            if show_facts:
+                self._output('\nAll Facts:')
+                self._output('\t{}'.format(self._format_facts(target.facts)))
+        else:
+            self._output(self._red('Target not found.'))
+
+
     @handle_exceptions
     def ListTargets(self): #pylint: disable=invalid-name
         """

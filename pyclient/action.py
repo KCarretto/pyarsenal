@@ -14,6 +14,8 @@ class Action(ArsenalObject):
     target_name = None
     action_string = None
 
+    response = None
+
     @staticmethod
     def create_action(target_name, action_string, bound_session_id=None):
         """

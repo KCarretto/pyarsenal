@@ -2,6 +2,7 @@
 This module contains Log API functions.
 """
 from .arsenal import ArsenalObject
+from .action import Action
 from .exceptions import parse_error
 
 class Target(ArsenalObject):
@@ -93,5 +94,26 @@ class Target(ArsenalObject):
         """
         return ArsenalObject._call(
             'ListGroups',
+            name=name
+        )
+
+    @staticmethod
+    def list_target_actions(name):
+        """
+        Returns a list of actions for a given target.
+        """
+        resp = Target._list_target_actions_raw(name)
+        if resp.get('error', True):
+            parse_error(resp)
+
+        return [Action(action) for action in resp.get('actions', [])]
+
+    @staticmethod
+    def _list_target_actions_raw(name):
+        """
+        Returns a list of actions for a given target.
+        """
+        return ArsenalObject._call(
+            'GetTargetActions',
             name=name
         )

@@ -21,6 +21,9 @@ class ArsenalObject(object): # pylint: disable=too-few-public-methods
         for key, value in object_json.items():
             self.__setattr__(key, value)
 
+    def __str__(self):
+        return str(self.raw_json)
+
     @property
     def json(self, arsenal_object):
         """
