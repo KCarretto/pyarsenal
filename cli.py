@@ -184,7 +184,14 @@ class ArsenalClient(object):
         self._output('\ttarget: {}'.format(action.target_name))
         self._output('\tstatus: {}'.format(status))
         self._output('\taction: {}'.format(self._yellow(action.action_string)))
-        # TODO: Include response
+
+        if action.response:
+            stdout = action.response.get('stdout')
+            stderr = action.response.get('stderr')
+            if stdout:
+                self._output('stdout:\n{}\n'.format(self._green(stdout)))
+            if stderr:
+                self._output('stderr:\n{}\n'.format(self._red(stderr)))
 
     @handle_exceptions
     def CancelAction(self, action_id): #pylint: disable=invalid-name
@@ -296,13 +303,6 @@ class ArsenalClient(object):
                     self._output('\naction_id: {}'.format(self._blue(action.action_id)))
                     self._output('action: {}'.format(self._yellow(action.action_string)))
                     self._output('status: {}'.format(self._format_action_status(action.status)))
-                    if action.response:
-                        stdout = action.response.get('stdout')
-                        stderr = action.response.get('stderr')
-                        if stdout:
-                            self._output('stdout:\n{}\n'.format(self._green(stdout)))
-                        if action.stdout:
-                            self._output('stderr:\n{}\n'.format(self._red(stderr)))
 
             if show_facts:
                 self._output('\nAll Facts:')
