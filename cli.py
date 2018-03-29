@@ -250,7 +250,7 @@ class ArsenalClient(object):
         self._output('\n\n\tsession_id: {}'.format(self._blue(session.session_id)))
 
     @handle_exceptions
-    def ListSessions(self): #pylint: disable=invalid-name
+    def ListSessions(self, sortby='target_name'): #pylint: disable=invalid-name
         """
         This lists all Sessions that are currently tracked by the teamserver.
 
@@ -259,7 +259,7 @@ class ArsenalClient(object):
         """
         sessions = Session.list_sessions()
         if sessions:
-            for session in sessions:
+            for session in sorted(sessions, key=lambda x: x.raw_json.get(sortby, 0)):
                 self._output('[{}]\t[{}]\t (Target: {})'.format(
                     self._format_session_status(session.status),
                     self._blue(session.session_id),
@@ -321,7 +321,7 @@ class ArsenalClient(object):
         """
         targets = Target.list_targets()
         if targets:
-            for target in targets:
+            for target in sorted(targets, key=lambda x: x.name):
                 groups = Target.list_target_groups(target.name)
                 self._output('[{}]\t{}\tgroups: {}'.format(
                     self._format_session_status(target.status),
