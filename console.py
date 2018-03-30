@@ -9,10 +9,31 @@ import fire
 
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import ArsenalClient
+
+class ArsenalCompleter(Completer):
+    """
+    A completer specific to the Arsenal API.
+    """
+    _api_methods = []
+    def __init__(self):
+        """
+        Constructor for the completer, used to gather API information.
+        """
+        self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)))
+        self.api_completer = WordCompleter(self._api_methods)
+
+    def get_completions(self, document, complete_event):
+        """
+        A function for determining auto-complete results.
+        """
+        yield from (Completion(completion.text, completion.start_position, display=completion.display)
+                    for completion
+                    in self.api_completer.get_completions(document, complete_event))
 
 class FireThread(threading.Thread):
     """
@@ -39,14 +60,14 @@ def main():
     """
     The main entry point of the program.
     """
-    completer = WordCompleter(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)), True)
+    #completer = WordCompleter(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)), True)
     history = InMemoryHistory()
 
     while True:
         try:
             text = prompt(
                 'Arsenal >> ',
-                completer=completer,
+                completer=ArsenalCompleter(),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory()
             )
