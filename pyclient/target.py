@@ -1,5 +1,5 @@
 """
-This module contains Log API functions.
+This module contains Target API functions.
 """
 from .arsenal import ArsenalObject
 from .exceptions import parse_error

@@ -1,5 +1,5 @@
 """
-This module contains Action API functions.
+This module contains Session API functions.
 """
 from .arsenal import ArsenalObject
 from .action import Action

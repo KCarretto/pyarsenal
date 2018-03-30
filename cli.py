@@ -11,10 +11,10 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient import Action, Session, Target, Log
+    from .pyclient import Action, Session, Target, Group, Log
     from .pyclient.exceptions import handle_exceptions
 except ImportError:
-    from pyclient import Action, Session, Target, Log
+    from pyclient import Action, Session, Target, Group, Log
     from pyclient.exceptions import handle_exceptions
 
 class ArsenalClient(object):
@@ -360,6 +360,88 @@ class ArsenalClient(object):
                 ))
         else:
             self._output(self._red('No Targets were found.'))
+
+    ###############################################################################################
+    #                                   Group Methods                                             #
+    ###############################################################################################
+    @handle_exceptions
+    def CreateGroup(self, name): #pylint: disable=invalid-name
+        """
+        Create a Group of Targets.
+
+        Args:
+            name: The name of the Group.
+        """
+        Group.create_group(name)
+        self._output(self._green('Successfully created group: {}'.format(name)))
+
+    @handle_exceptions
+    def GetGroup(self, name): #pylint: disable=invalid-name
+        """
+        Fetch information about a Group.
+
+        Args:
+            name: The name of the Group.
+        """
+        group = Group.get_group(name)
+        self._output('Name:\t{}'.format(self._green(group.name)))
+        self._output('Members:\t{}'.format(
+            ', '.join(group.whitelist_members) if group.whitelist_members else 'None'))
+        if group.blacklist_members:
+            self._output('Blacklisted:\t{}'.format(self._red(', '.join(group.blacklist_members))))
+
+    @handle_exceptions
+    def AddGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
+        """
+        Add a Target to a Group's whitelist.
+
+        Args:
+            group_name: The name of the Group to modify.
+            target_name: The name of the Target to add to the Group.
+        """
+        Group.add_group_member(group_name, target_name)
+        self._output(self._green('Successfully added member to group.'))
+
+    @handle_exceptions
+    def RemoveGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
+        """
+        Remove a Target from a Group's whitelist.
+
+        Args:
+            group_name: The name of the Group to modify.
+            target_name: The name of the Target to remove from the Group.
+        """
+        Group.remove_group_member(group_name, target_name)
+        self._output(self._green('Successfully remove member from group.'))
+
+    @handle_exceptions
+    def BlacklistGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
+        """
+        Remove a Target from a Group's whitelist and prevent it from being included
+        as a part of an automember rule.
+
+        Args:
+            group_name: The name of the Group to modify.
+            target_name: The name of the Target to add to the Group.
+        """
+        Group.blacklist_group_member(group_name, target_name)
+        self._output(self._green('Successfully blacklisted member from group.'))
+
+    @handle_exceptions
+    def ListGroups(self): #pylint: disable=invalid-name
+        """
+        List all Groups on the teamserver.
+
+        Args:
+            None
+        """
+        groups = Group.list_groups()
+        if groups:
+            self._output('Groups: \n')
+            for group in groups:
+                self._output('\t{}'.format(group.name))
+        else:
+            self._output(self._red('No Groups available.'))
 
     ###############################################################################################
     #                                 Log Methods                                                 #
