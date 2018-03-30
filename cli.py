@@ -11,10 +11,10 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient import Action, Session, Target, Group, Log
+    from .pyclient import Action, Session, Target, Group, GroupAction, Log
     from .pyclient.exceptions import handle_exceptions
 except ImportError:
-    from pyclient import Action, Session, Target, Group, Log
+    from pyclient import Action, Session, Target, Group, GroupAction, Log
     from pyclient.exceptions import handle_exceptions
 
 class ArsenalClient(object):
@@ -442,6 +442,55 @@ class ArsenalClient(object):
                 self._output('\t{}'.format(group.name))
         else:
             self._output(self._red('No Groups available.'))
+
+    @handle_exceptions
+    def DeleteGroup(self, name): #pylint: disable=invalid-name
+        """
+        Delete a group from the teamserver.
+
+        Args:
+            name: The name of the Group to delete.
+        """
+        Group.delete_group(name)
+        self._output(self._green('Successfully deleted group.'))
+
+    ###############################################################################################
+    #                             Group Action Methods                                            #
+    ###############################################################################################
+    @handle_exceptions
+    def CreateGroupAction(self, group_name, action_string): #pylint: disable=invalid-name
+        """
+        Queue an Action for a Group of Targets.
+
+        Args:
+            group_name: The name of the Group of Targets.
+            action_string: The Arsenal-Syntax action string to executes.
+        """
+        group_action_id = GroupAction.create_group_action(group_name, action_string)
+        self._output('Action created. \
+        You can track it\'s progress using this group_action_id: `{}`'.format(group_action_id))
+
+    @handle_exceptions
+    def GetGroupAction(self, group_action_id): #pylint: disable=invalid-name
+        """
+        Fetch information about a Group Action from the teamserver.
+
+        Args:
+            group_action_id: The identifier of group action.
+        """
+        group_action = GroupAction.get_group_action(group_action_id)
+
+        self._output('\n{}: {}\n'.format(
+            self._blue(group_action.group_action_id),
+            self._yellow(group_action.action_string)))
+
+        if group_action.actions:
+            for action in group_action.actions:
+                self._output('[{}]\t{}\t{}'.format(
+                    self._format_action_status(action.status),
+                    action.target_name,
+                    action.action_id))
+
 
     ###############################################################################################
     #                                 Log Methods                                                 #
