@@ -13,7 +13,7 @@ try:
     # Attempt relative import, will not work if __main__
     from .pyclient import Action, Session, Target, Group, GroupAction, Log
     from .pyclient.exceptions import handle_exceptions
-except ImportError:
+except Exception:
     from pyclient import Action, Session, Target, Group, GroupAction, Log
     from pyclient.exceptions import handle_exceptions
 
@@ -352,7 +352,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             include_credentials=False)
         if targets:
             for target in sorted(targets, key=lambda x: x.name):
-                groups = target.groups
+                groups = [group['name'] for group in target.groups]
                 self._output('[{}]\t{}\tgroups: {}'.format(
                     self._format_session_status(target.status),
                     self._blue(target.name),
