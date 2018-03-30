@@ -315,8 +315,7 @@ class ArsenalClient(object):
                         self._output('\naction_id: {}'.format(self._blue(action.get('action_id'))))
                         self._output('action: {}'.format(self._yellow(action.get('action_string'))))
                         self._output('status: {}'.format(
-                            self._format_action_status(
-                                action.get('status'))))
+                            self._format_action_status(action.get('status'))))
 
             if show_facts:
                 self._output('\nAll Facts:')
@@ -344,7 +343,13 @@ class ArsenalClient(object):
         Args:
             None
         """
-        targets = Target.list_targets(True, False, False, False, True, False)
+        targets = Target.list_targets(
+            include_status=True,
+            include_facts=False,
+            include_actions=False,
+            include_sessions=False,
+            include_groups=True,
+            include_credentials=False)
         if targets:
             for target in sorted(targets, key=lambda x: x.name):
                 groups = target.groups

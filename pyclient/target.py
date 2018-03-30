@@ -97,24 +97,11 @@ class Target(ArsenalObject):
             parse_error(resp)
 
     @staticmethod
-    def list_targets( #pylint: disable=too-many-arguments
-            include_status=True,
-            include_facts=False,
-            include_sessions=False,
-            include_actions=False,
-            include_groups=False,
-            include_credentials=False):
+    def list_targets(**kwargs):
         """
         Returns a list of Target Objects from the teamserver.
         """
-        resp = Target._list_targets_raw(
-            include_status=include_status,
-            include_facts=include_facts,
-            include_sessions=include_sessions,
-            include_actions=include_actions,
-            include_groups=include_groups,
-            include_credentials=include_credentials
-        )
+        resp = Target._list_targets_raw(kwargs)
 
         if resp.get('error', True):
             parse_error(resp)
@@ -122,21 +109,16 @@ class Target(ArsenalObject):
         return [Target(target) for name, target in resp['targets'].items()]
 
     @staticmethod
-    def _list_targets_raw( #pylint: disable=too-many-arguments
-            include_status=True,
-            include_facts=False,
-            include_sessions=False,
-            include_actions=False,
-            include_groups=False,
-            include_credentials=False):
+    def _list_targets_raw(params):
         """
         Returns the raw response of the ListTargets API call.
         """
         return ArsenalObject._call(
             'ListTargets',
-            include_status=include_status,
-            include_facts=include_facts,
-            include_sessions=include_sessions,
-            include_actions=include_actions,
-            include_groups=include_groups,
-            include_credentials=include_credentials)
+            include_status=params.get('include_status', True),
+            include_facts=params.get('include_facts', False),
+            include_sessions=params.get('include_sessions', False),
+            include_actions=params.get('include_actions', False),
+            include_groups=params.get('include_groups', False),
+            include_credentials=params.get('include_credentials', False),
+        )
