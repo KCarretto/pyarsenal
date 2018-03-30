@@ -17,7 +17,7 @@ except ImportError:
     from pyclient import Action, Session, Target, Group, GroupAction, Log
     from pyclient.exceptions import handle_exceptions
 
-class ArsenalClient(object):
+class ArsenalClient(object): #pylint: disable=too-many-public-methods
     """
     This class contains all API functions.
     It may be invoked using the Google Python Fire library by running it from the command line.
@@ -491,6 +491,33 @@ class ArsenalClient(object):
                     action.target_name,
                     action.action_id))
 
+    @handle_exceptions
+    def CancelGroupAction(self, group_action_id): #pylint: disable=invalid-name
+        """
+        Attempt to cancel a group action. This will only work for targets that have not
+        yet had the action sent to a session.
+
+        Args:
+            group_action_id: The identifier of group action.
+        """
+        GroupAction.cancel_group_action(group_action_id)
+        self._output(self._green('Successfully cancelled GroupAction'))
+
+    @handle_exceptions
+    def ListGroupActions(self): #pylint: disable=invalid-name
+        """
+        List all Group Actions.
+
+        Args:
+            None
+        """
+        group_actions = GroupAction.list_group_actions()
+
+        for group_action in group_actions:
+            self._output('[{}] {} `{}`'.format(
+                group_action.status,
+                self._blue(group_action.group_action_id),
+                self._yellow(group_action.action_string)))
 
     ###############################################################################################
     #                                 Log Methods                                                 #
