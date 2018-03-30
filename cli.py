@@ -2,7 +2,6 @@
 This module includes a class that contains all API functions,
 and may be called from the command line.
 """
-from pprint import pformat
 from datetime import datetime
 
 import time
@@ -13,7 +12,7 @@ try:
     # Attempt relative import, will not work if __main__
     from .pyclient import Action, Session, Target, Group, GroupAction, Log
     from .pyclient.exceptions import handle_exceptions
-except Exception:
+except Exception: #pylint: disable=broad-except
     from pyclient import Action, Session, Target, Group, GroupAction, Log
     from pyclient.exceptions import handle_exceptions
 
@@ -43,6 +42,12 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         print(msg)
 
     # Helper functions
+    # Color Scheme:
+        # Keys - Cyan
+        # Data - Normal
+        # Identifiers - Blue
+        # Actions strings - Yellow
+
     def _purple(self, msg):
         return '{}{}{}'.format(
             colorama.Fore.MAGENTA, msg, colorama.Fore.RESET) if self._color else msg
@@ -67,6 +72,35 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         return '{}{}{}'.format(
             colorama.Fore.RED, msg, colorama.Fore.RESET) if self._color else msg
 
+    def _id(self, msg):
+        return '{}{}{}'.format(
+            colorama.Fore.BLUE, msg, colorama.Fore.RESET) if self._color else msg
+
+    def _key(self, msg):
+        return '{}{}{}'.format(
+            colorama.Fore.CYAN, msg, colorama.Fore.RESET,
+        ) if self._color else msg
+
+    def _pair(self, key, value, value_func=None):
+        if not self._color:
+            return '{0:<25}: {1:<30}'.format(key, value)
+
+        if value_func and callable(value_func):
+            return '{0:<25}: {1:<30}'.format(
+                self._key(key),
+                value_func(value)
+            )
+
+        return '{0:<25}: {1:<30}'.format(
+            self._key(key),
+            value
+        )
+
+    def _bright(self, msg):
+        return '{}{}{}'.format(
+            colorama.Style.BRIGHT, msg, colorama.Style.RESET_ALL
+        ) if self._color else msg
+
     def _format_action_status(self, status):
         if status == 'queued':
             status = self._purple(status)
@@ -76,6 +110,20 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             status = self._green(status)
         elif status == 'stale' or status == 'failing':
             status = self._yellow(status)
+        else:
+            status = self._red(status)
+
+        return status
+
+    def _format_group_action_status(self, status):
+        if status == 'queued':
+            status = self._purple(status)
+        elif status == 'in-progress':
+            status = self._cyan(status)
+        elif status == 'mixed success':
+            status = self._yellow(status)
+        elif status == 'success':
+            status = self._green(status)
         else:
             status = self._red(status)
 
@@ -109,23 +157,26 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         for key, value in facts.items():
             if isinstance(value, dict):
                 format_str = '{}\n{}{}: {}'.format(
-                    format_str, i, key, self._format_facts(value, indent*2))
+                    format_str, i, self._key(key), self._format_facts(value, indent*2))
             elif isinstance(value, list):
                 if value:
                     if isinstance(value[0], dict):
+                        format_str = '{}\n{}{}:'.format(format_str, i, self._key(key))
                         for subval in value:
-                            format_str = '{}\n{}{}: {}'.format(
-                                format_str, i, key, self._format_facts(subval, indent*2))
+                            format_str = '{}\n{}{}'.format(
+                                format_str,
+                                i,
+                                self._format_facts(subval, indent*2))
                     else:
                         format_str = '{}\n{}{}: {}'.format(
-                            format_str, i, key, value)
+                            format_str, i, self._key(key), value)
                 else:
                     format_str = '{}\n{}{}: {}'.format(
-                        format_str, i, key, '[]'
+                        format_str, i, self._key(key), '[]'
                     )
             else:
                 format_str = '{}\n{}{}: {}'.format(
-                    format_str, i, key, value
+                    format_str, i, self._key(key), value
                 )
         return format_str
 
@@ -136,6 +187,8 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
     def help(self, api_method=None):
         """
         Display API help for a given API method.
+
+        You may request additional information by running help <Method Name>
 
         Args:
             api_method: The name of the API method.
@@ -148,7 +201,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         try:
             self._output(self.__getattribute__(api_method).__doc__)
         except AttributeError:
-            self._output('Invalid method.')
+            self._output(self._red('Invalid method.'))
 
     ###############################################################################################
     #                              Action Methods                                                 #
@@ -166,7 +219,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         """
         action_id = Action.create_action(target_name, action_string, bound_session_id)
         self._output('Action created. \
-        You can track it\'s progress using this action_id: `{}`'.format(action_id))
+        You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
 
     @handle_exceptions
     def GetAction(self, action_id): #pylint: disable=invalid-name
@@ -177,21 +230,20 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             action_id: The identifier of the Action to fetch.
         """
         action = Action.get_action(action_id)
-        status = self._format_action_status(action.status.lower())
 
-        self._output(self._green('Action Found:\n'))
-        self._output('\taction_id: {}'.format(self._blue(action.action_id)))
-        self._output('\ttarget: {}'.format(action.target_name))
-        self._output('\tstatus: {}'.format(status))
-        self._output('\taction: {}'.format(self._yellow(action.action_string)))
+        self._output(self._green('\nAction Found:\n'))
+        self._output(self._pair('\taction_id', action.action_id, self._id))
+        self._output(self._pair('\ttarget', action.target_name, self._id))
+        self._output(self._pair('\tstatus', action.status, self._format_action_status))
+        self._output(self._pair('\taction', action.action_string, self._yellow))
 
         if action.response:
             stdout = action.response.get('stdout')
             stderr = action.response.get('stderr')
             if stdout:
-                self._output('stdout:\n{}\n'.format(self._green(stdout)))
+                self._output(self._pair('\tstdout', stdout, self._green))
             if stderr:
-                self._output('stderr:\n{}\n'.format(self._red(stderr)))
+                self._output(self._pair('\tstderr', stderr, self._red))
 
     @handle_exceptions
     def CancelAction(self, action_id): #pylint: disable=invalid-name
@@ -204,9 +256,11 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         cancelled = Action.cancel_action(action_id)
 
         if cancelled:
-            self._output(self._green('Action `{}` successfully cancelled.'.format(action_id)))
+            self._output(
+                self._green('Action `{}` successfully cancelled.'.format(self._id(action_id))))
         else:
-            self._output(self._red('Could not cancel Action `{}`.'.format(action_id)))
+            self._output(
+                self._red('Could not cancel Action `{}`.'.format(self._id(action_id))))
 
     @handle_exceptions
     def ListActions(self): #pylint: disable=invalid-name
@@ -220,11 +274,12 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
 
         if actions:
             for action in actions:
-                self._output('[{}][{}]\t{} (Target: {})'.format(
+                self._output('{0:<10} {1:<20} {2:>30} {3:<30}'.format(
+                    self._id(action.target_name),
                     self._format_action_status(action.status),
-                    self._blue(action.action_id),
+                    self._id(action.action_id),
                     self._yellow(action.action_string),
-                    action.target_name))
+                    ))
         else:
             self._output(self._red('No Actions were found.'))
 
@@ -240,14 +295,13 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             session_id: The identifier of the Session to fetch.
         """
         session = Session.get_session(session_id)
-
-        self._output(self._green('Session Found:\n'))
-        self._output('\ttarget: {}'.format(self._yellow(session.target_name)))
-        self._output('\tstatus: {}'.format(self._format_session_status(session.status)))
-        self._output('\tLast Seen: {}s ago'.format(time.time() - session.timestamp))
-        self._output('\tconfig:')
-        self._output(pformat(session.config))
-        self._output('\n\n\tsession_id: {}'.format(self._blue(session.session_id)))
+        lastseen = '{} seconds ago'.format(self._yellow(int(time.time() - session.timestamp)))
+        self._output(self._green('\nSession Found:\n'))
+        self._output(self._pair('\tsession_id', session.session_id, self._id))
+        self._output(self._pair('\ttarget', session.target_name, self._yellow))
+        self._output(self._pair('\tstatus', session.status, self._format_session_status))
+        self._output(self._pair('\tLast Seen', lastseen))
+        self._output(self._pair('\tconfig', self._format_facts(session.config)))
 
     @handle_exceptions
     def ListSessions(self, sortby='target_name'): #pylint: disable=invalid-name
@@ -260,10 +314,11 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         sessions = Session.list_sessions()
         if sessions:
             for session in sorted(sessions, key=lambda x: x.raw_json.get(sortby, 0)):
-                self._output('[{}]\t[{}]\t (Target: {})'.format(
+                self._output('{0:<20} {1:<20} {2:<40}'.format(
+                    self._id(session.target_name),
                     self._format_session_status(session.status),
-                    self._blue(session.session_id),
-                    session.target_name))
+                    self._id(session.session_id),
+                    ))
         else:
             self._output(self._red('No Sessions were found.'))
     ###############################################################################################
@@ -286,14 +341,16 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             include_facts=True)
 
         if target:
-            self._output(self._green('Target Found:\n'))
-            self._output('\tname: {}'.format(target.name))
-            self._output('\tstatus: {}'.format(self._format_session_status(target.status)))
-            self._output('\tLast Seen: {}s ago'.format(
-                self._yellow(int(time.time() - target.lastseen))))
-            self._output('\tGroups: {}'.format(self._green(target.groups)))
-            self._output('\n\tHostname: {}'.format(
-                self._yellow(target.facts.get('hostname', 'unknown hostname'))))
+            lastseen = '{} seconds ago'.format(self._yellow(int(time.time() - target.lastseen)))
+            groups = [group.get('name') for group in target.groups]
+            self._output(self._green('\nTarget Found:\n'))
+            self._output(self._pair('\tname', target.name, self._id))
+            self._output(self._pair('\tstatus', target.status, self._format_session_status))
+            self._output(self._pair('\tlast seen', lastseen))
+            self._output(self._pair('\tgroups', ', '.join(groups), self._id))
+            self._output('\n')
+            self._output(self._pair('\thostname', target.facts.get('hostname', 'unknown hostname')))
+
             ip_addrs = []
             for iface in target.facts.get('interfaces', []):
                 addrs = iface.get('ip_addrs')
@@ -301,7 +358,8 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
                     for addr in addrs:
                         if addr != '127.0.0.1' and not addr.startswith('169.254'):
                             ip_addrs.append(addr)
-            self._output('\tIP Addresses: {}'.format(self._yellow(', '.join(sorted(ip_addrs)))))
+            self._output(self._pair('\tIP Addresses', ', '.join(sorted(ip_addrs))))
+
             if not hide_actions:
                 if target.actions:
                     self._output('\n\nActions:')
@@ -312,10 +370,15 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
                         reverse=True)
 
                     for action in actions:
-                        self._output('\naction_id: {}'.format(self._blue(action.get('action_id'))))
-                        self._output('action: {}'.format(self._yellow(action.get('action_string'))))
-                        self._output('status: {}'.format(
-                            self._format_action_status(action.get('status'))))
+                        self._output(self._pair('\taction_id', action.get('action_id'), self._id))
+                        self._output(
+                            self._pair('\taction', action.get('action_string'), self._yellow))
+                        self._output(
+                            self._pair(
+                                '\tstatus',
+                                action.get('status'),
+                                self._format_action_status))
+                        self._output('\n')
 
             if show_facts:
                 self._output('\nAll Facts:')
@@ -353,9 +416,9 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         if targets:
             for target in sorted(targets, key=lambda x: x.name):
                 groups = [group['name'] for group in target.groups]
-                self._output('[{}]\t{}\tgroups: {}'.format(
+                self._output('{0:<20} {1:<20} {2:<40}'.format(
                     self._format_session_status(target.status),
-                    self._blue(target.name),
+                    self._id(target.name),
                     self._green(', '.join(groups) if groups else 'None')
                 ))
         else:
@@ -384,11 +447,16 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             name: The name of the Group.
         """
         group = Group.get_group(name)
-        self._output('Name:\t{}'.format(self._green(group.name)))
-        self._output('Members:\t{}'.format(
+        self._output(self._pair('\tname', group.name, self._id))
+        self._output(self._pair(
+            '\tmembers',
             ', '.join(group.whitelist_members) if group.whitelist_members else 'None'))
+
         if group.blacklist_members:
-            self._output('Blacklisted:\t{}'.format(self._red(', '.join(group.blacklist_members))))
+            self._output(self._pair(
+                '\tblacklist',
+                ', '.join(group.blacklist_members),
+                self._red))
 
     @handle_exceptions
     def AddGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
@@ -437,7 +505,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         """
         groups = Group.list_groups()
         if groups:
-            self._output('Groups: \n')
+            self._output(self._green('Groups:\n'))
             for group in groups:
                 self._output('\t{}'.format(group.name))
         else:
@@ -467,8 +535,8 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             action_string: The Arsenal-Syntax action string to executes.
         """
         group_action_id = GroupAction.create_group_action(group_name, action_string)
-        self._output('Action created. \
-        You can track it\'s progress using this group_action_id: `{}`'.format(group_action_id))
+        self._output('Action created. You can track it\'s progress using \
+        this group_action_id: `{}`'.format(self._id(group_action_id)))
 
     @handle_exceptions
     def GetGroupAction(self, group_action_id): #pylint: disable=invalid-name
@@ -480,9 +548,11 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         """
         group_action = GroupAction.get_group_action(group_action_id)
 
-        self._output('\n{}: {}\n'.format(
-            self._blue(group_action.group_action_id),
-            self._yellow(group_action.action_string)))
+        self._output('\n{}\n'.format(self._pair(
+            '\t{}'.format(group_action.group_action_id),
+            group_action.action_string,
+            self._yellow)))
+        self._output(self._pair('\tstatus', group_action.status, self._format_group_action_status))
 
         if group_action.actions:
             for action in group_action.actions:
@@ -512,11 +582,11 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             None
         """
         group_actions = GroupAction.list_group_actions()
-
+        self._output(self._bright('\n{0:<20} {1:<30} {2:<10}'.format('Status', 'ID', 'Action')))
         for group_action in group_actions:
-            self._output('[{}] {} `{}`'.format(
-                group_action.status,
-                self._blue(group_action.group_action_id),
+            self._output('{0:<20} {1:<20} {2:<40}'.format(
+                self._format_group_action_status(group_action.status),
+                self._id(group_action.group_action_id),
                 self._yellow(group_action.action_string)))
 
     ###############################################################################################
