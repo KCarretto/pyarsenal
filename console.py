@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 
 import sys
 import threading
-import inspect
 
 import fire
 
@@ -17,9 +16,8 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import ArsenalClient
 from pyclient import Target, Group
-from pprint import pprint
 
-class ArsenalCompleter(Completer):
+class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     """
     A completer specific to the Arsenal API.
     """
