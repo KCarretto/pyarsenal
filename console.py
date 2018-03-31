@@ -84,7 +84,6 @@ def main():
     """
     The main entry point of the program.
     """
-    #completer = WordCompleter(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)), True)
     history = InMemoryHistory()
 
     while True:

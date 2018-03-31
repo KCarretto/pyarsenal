@@ -18,7 +18,7 @@ except Exception: #pylint: disable=broad-except
 
 class ArsenalClient(object): #pylint: disable=too-many-public-methods
     """
-    This class contains all API functions.
+    This class contains all user API functions.
     It may be invoked using the Google Python Fire library by running it from the command line.
     """
     _output_lines = []
@@ -295,7 +295,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             session_id: The identifier of the Session to fetch.
         """
         session = Session.get_session(session_id)
-        lastseen = '{} seconds ago'.format(self._yellow(int(time.time() - session.timestamp)))
+        lastseen = datetime.fromtimestamp(session.timestamp).strftime('%Y-%m-%d %H:%M:%S')
         self._output(self._green('\nSession Found:\n'))
         self._output(self._pair('\tsession_id', session.session_id, self._id))
         self._output(self._pair('\ttarget', session.target_name, self._yellow))
@@ -341,12 +341,12 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             include_facts=True)
 
         if target:
-            lastseen = '{} seconds ago'.format(self._yellow(int(time.time() - target.lastseen)))
+            lastseen = datetime.fromtimestamp(target.lastseen).strftime('%Y-%m-%d %H:%M:%S')
             groups = [group.get('name') for group in target.groups]
             self._output(self._green('\nTarget Found:\n'))
             self._output(self._pair('\tname', target.name, self._id))
             self._output(self._pair('\tstatus', target.status, self._format_session_status))
-            self._output(self._pair('\tlast seen', lastseen))
+            self._output(self._pair('\tlast seen', lastseen, self._yellow))
             self._output(self._pair('\tgroups', ', '.join(groups), self._id))
             self._output('\n')
             self._output(self._pair('\thostname', target.facts.get('hostname', 'unknown hostname')))
