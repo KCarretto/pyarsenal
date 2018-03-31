@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 
 import sys
 import threading
+import inspect
+
 import fire
 
 from prompt_toolkit import prompt
@@ -14,26 +16,50 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import ArsenalClient
+from pyclient import Target, Group
+from pprint import pprint
 
 class ArsenalCompleter(Completer):
     """
     A completer specific to the Arsenal API.
     """
-    _api_methods = []
+    _api_methods = {}
+    _api_completers = {}
+    _names = []
     def __init__(self):
         """
         Constructor for the completer, used to gather API information.
         """
         self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)))
+
+        self._names = [target.name for target in Target.list_targets(include_status=False)]
+        self._names += [group.name for group in Group.list_groups()]
+
         self.api_completer = WordCompleter(self._api_methods)
+        self.name_completer = WordCompleter(self._names)
 
     def get_completions(self, document, complete_event):
         """
         A function for determining auto-complete results.
         """
-        yield from (Completion(completion.text, completion.start_position, display=completion.display)
-                    for completion
-                    in self.api_completer.get_completions(document, complete_event))
+        words = document.text.split(' ')
+        if len(words) > 3:
+            return
+
+        if words and words[0] in self._api_methods:
+            yield from (Completion(
+                completion.text,
+                completion.start_position,
+                display=completion.display)
+                        for completion
+                        in self.name_completer.get_completions(document, complete_event))
+        else:
+            yield from (Completion(
+                completion.text,
+                completion.start_position,
+                display=completion.display)
+                        for completion
+                        in self.api_completer.get_completions(document, complete_event))
 
 class FireThread(threading.Thread):
     """
@@ -78,6 +104,8 @@ def main():
                 print('')
 
         except EOFError:
+            exit_arsenal()
+        except KeyboardInterrupt:
             exit_arsenal()
         except Exception as exception: # pylint: disable=broad-except
             print(exception)
