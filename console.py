@@ -33,7 +33,7 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         self._names = [target.name for target in Target.list_targets(include_status=False)]
         self._names += [group.name for group in Group.list_groups()]
 
-        self.api_completer = WordCompleter(self._api_methods)
+        self.api_completer = WordCompleter(self._api_methods, True)
         self.name_completer = WordCompleter(self._names)
 
     def get_completions(self, document, complete_event):

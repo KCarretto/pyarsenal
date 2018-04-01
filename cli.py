@@ -4,7 +4,6 @@ and may be called from the command line.
 """
 from datetime import datetime
 
-import time
 import colorama
 import fire
 
