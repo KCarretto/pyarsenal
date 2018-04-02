@@ -3,16 +3,17 @@ This module includes a class that contains all API functions,
 and may be called from the command line.
 """
 from datetime import datetime
+from getpass import getpass
 
 import colorama
 import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient import ArsenalClient
+    from .pyclient import ArsenalClient, API_KEY_FILE
     from .pyclient.exceptions import handle_exceptions
 except Exception: #pylint: disable=broad-except
-    from pyclient import ArsenalClient
+    from pyclient import ArsenalClient, API_KEY_FILE
     from pyclient.exceptions import handle_exceptions
 
 class CLI(object): #pylint: disable=too-many-public-methods
@@ -25,11 +26,37 @@ class CLI(object): #pylint: disable=too-many-public-methods
     _color = True
     _display_output = True
 
-    def __init__(self, enable_color=True, display_output=True):
-        self.client = ArsenalClient()
+    def __init__(self, **kwargs):
+        """
+        Constructor arguments:
+        enable_color: Should special characters to enable color be inserted into the output?
+        display_output: Should output be printed to stdout
+        api_key_file: The location of the API key file.
+        username: The username to authenticate with (not required if api_key_file is specified).
+        password: The password to authenticate with (not required if api_key_file is specified).
+
+        If api_key_file, username, and password are not specified, the user is prompted to input
+        the username and password.
+        """
+        self._display_output = kwargs.get('display_output', True)
+        self._color = kwargs.get('enable_color', True)
+
+        api_key_file = kwargs.get('api_key_file')
+        if ArsenalClient.api_key_exists(api_key_file):
+            self.client = ArsenalClient(
+                api_key_file=api_key_file
+            )
+        else:
+            self.username = kwargs.get('username')
+            self.password = kwargs.get('password')
+            if not self.username or not self.password:
+                self.username = input("Username: ")
+                self.password = getpass("Password: ")
+            self.client = ArsenalClient(
+                username=self.username,
+                password=self.password,
+            )
         self._output_lines = []
-        self._color = enable_color
-        self._display_output = display_output
 
     ###############################################################################################
     #                                   Utility Methods                                           #
@@ -613,5 +640,12 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 log.message
             ))
 
+def main():
+    """
+    A main entry point for executing this file as a script.
+    """
+    cli = CLI(api_key_file=API_KEY_FILE)
+    fire.Fire(cli)
+
 if __name__ == '__main__':
-    fire.Fire(CLI)
+    main()
