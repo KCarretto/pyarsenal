@@ -1,51 +1,48 @@
 """
 This module contains Log API functions.
 """
-from .arsenal import ArsenalObject
 from .exceptions import parse_error
+from .objects import Log
 
-class Log(ArsenalObject):
+def create_log(
+        self,
+        application,
+        level,
+        message):
     """
-    This object represents a Log from the teamserver.
+    Generate a log on the teamserver.
     """
+    resp = self.call(
+        'CreateLog',
+        application=application,
+        level=level,
+        message=message)
 
-    timestamp = None
-    application = None
-    level = None
-    message = None
+    if resp.get('error', True):
+        parse_error(resp)
 
-    @staticmethod
-    def create_log(
-            application,
-            level,
-            message):
-        """
-        Generate a log on the teamserver.
-        """
-        resp = ArsenalObject._call(
-            'CreateLog',
-            application=application,
-            level=level,
-            message=message)
+def list_logs(
+        self,
+        application=None,
+        since=None,
+        include_archived=None):
+    """
+    List logs from the teamserver, optionally filtering.
+    """
+    resp = self._list_logs_raw(application, since, include_archived) # pylint: disable=protected-access
 
-        if resp.get('error', True):
-            parse_error(resp)
+    if resp.get('error', True):
+        parse_error(resp)
 
-    @staticmethod
-    def list_logs(
-            application=None,
-            since=None,
-            include_archived=None):
-        """
-        List logs from the teamserver, optionally filtering.
-        """
-        resp = ArsenalObject._call(
-            'ListLogs',
-            application=application,
-            since=since,
-            include_archived=include_archived)
+    return [Log(log_data) for log_data in resp['logs']]
 
-        if resp.get('error', True):
-            parse_error(resp)
-
-        return [Log(log_data) for log_data in resp['logs']]
+def _list_logs_raw(self, application, since, include_archived):
+    """
+    Returns the raw response of the ListLogs API call.
+    """
+    return self.call(
+        'ListLogs',
+        application=application,
+        since=since,
+        include_archived=include_archived
+    )

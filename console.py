@@ -14,8 +14,8 @@ from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
-from cli import ArsenalClient
-from pyclient import Target, Group
+from cli import CLI
+from pyclient import ArsenalClient
 
 class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     """
@@ -28,10 +28,10 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         """
         Constructor for the completer, used to gather API information.
         """
-        self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(ArsenalClient)))
+        self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
-        self._names = [target.name for target in Target.list_targets(include_status=False)]
-        self._names += [group.name for group in Group.list_groups()]
+        #self._names = [target.name for target in CLIENT.list_targets(include_status=False)]
+        #self._names += [group.name for group in CLIENT.list_groups()]
 
         self.api_completer = WordCompleter(self._api_methods, True)
         self.name_completer = WordCompleter(self._names)
@@ -84,6 +84,7 @@ def main():
     """
     The main entry point of the program.
     """
+    #CLIENT = ArsenalClient()
     history = InMemoryHistory()
 
     while True:

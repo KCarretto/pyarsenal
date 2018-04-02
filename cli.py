@@ -9,22 +9,24 @@ import fire
 
 try:
     # Attempt relative import, will not work if __main__
-    from .pyclient import Action, Session, Target, Group, GroupAction, Log
+    from .pyclient import ArsenalClient
     from .pyclient.exceptions import handle_exceptions
 except Exception: #pylint: disable=broad-except
-    from pyclient import Action, Session, Target, Group, GroupAction, Log
+    from pyclient import ArsenalClient
     from pyclient.exceptions import handle_exceptions
 
-class ArsenalClient(object): #pylint: disable=too-many-public-methods
+class CLI(object): #pylint: disable=too-many-public-methods
     """
     This class contains all user API functions.
     It may be invoked using the Google Python Fire library by running it from the command line.
     """
+    client = None
     _output_lines = []
     _color = True
     _display_output = True
 
     def __init__(self, enable_color=True, display_output=True):
+        self.client = ArsenalClient()
         self._output_lines = []
         self._color = enable_color
         self._display_output = display_output
@@ -216,7 +218,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             bound_session_id(optional): This parameter can be used to ensure that only a specific
                                         session may retrieve the action.
         """
-        action_id = Action.create_action(target_name, action_string, bound_session_id)
+        action_id = self.client.create_action(target_name, action_string, bound_session_id)
         self._output('Action created. \
         You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
 
@@ -228,7 +230,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             action_id: The identifier of the Action to fetch.
         """
-        action = Action.get_action(action_id)
+        action = self.client.get_action(action_id)
 
         self._output(self._green('\nAction Found:\n'))
         self._output(self._pair('\taction_id', action.action_id, self._id))
@@ -252,7 +254,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             action_id: The identifier of the action to fetch.
         """
-        cancelled = Action.cancel_action(action_id)
+        cancelled = self.client.cancel_action(action_id)
 
         if cancelled:
             self._output(
@@ -269,7 +271,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             None
         """
-        actions = Action.list_actions()
+        actions = self.client.list_actions()
 
         if actions:
             for action in actions:
@@ -293,7 +295,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             session_id: The identifier of the Session to fetch.
         """
-        session = Session.get_session(session_id)
+        session = self.client.get_session(session_id)
         lastseen = datetime.fromtimestamp(session.timestamp).strftime('%Y-%m-%d %H:%M:%S')
         self._output(self._green('\nSession Found:\n'))
         self._output(self._pair('\tsession_id', session.session_id, self._id))
@@ -310,7 +312,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             None
         """
-        sessions = Session.list_sessions()
+        sessions = self.client.list_sessions()
         if sessions:
             for session in sorted(sessions, key=lambda x: x.raw_json.get(sortby, 0)):
                 self._output('{0:<20} {1:<20} {2:<40}'.format(
@@ -332,7 +334,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             name: The name of the Target to search for.
             showfacts: Set True to display all facts
         """
-        target = Target.get_target(
+        target = self.client.get_target(
             name,
             include_status=True,
             include_groups=True,
@@ -394,7 +396,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             name: The current name of the target.
             new_name: The desired name of the target.
         """
-        Target.rename_target(name, new_name)
+        self.client.rename_target(name, new_name)
         self._output(self._green('Target renamed successfully.'))
 
     @handle_exceptions
@@ -405,7 +407,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             None
         """
-        targets = Target.list_targets(
+        targets = self.client.list_targets(
             include_status=True,
             include_facts=False,
             include_actions=False,
@@ -434,7 +436,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             name: The name of the Group.
         """
-        Group.create_group(name)
+        self.client.create_group(name)
         self._output(self._green('Successfully created group: {}'.format(name)))
 
     @handle_exceptions
@@ -445,7 +447,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             name: The name of the Group.
         """
-        group = Group.get_group(name)
+        group = self.client.get_group(name)
         self._output(self._pair('\tname', group.name, self._id))
         self._output(self._pair(
             '\tmembers',
@@ -466,7 +468,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             group_name: The name of the Group to modify.
             target_name: The name of the Target to add to the Group.
         """
-        Group.add_group_member(group_name, target_name)
+        self.client.add_group_member(group_name, target_name)
         self._output(self._green('Successfully added member to group.'))
 
     @handle_exceptions
@@ -478,7 +480,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             group_name: The name of the Group to modify.
             target_name: The name of the Target to remove from the Group.
         """
-        Group.remove_group_member(group_name, target_name)
+        self.client.remove_group_member(group_name, target_name)
         self._output(self._green('Successfully remove member from group.'))
 
     @handle_exceptions
@@ -491,7 +493,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             group_name: The name of the Group to modify.
             target_name: The name of the Target to add to the Group.
         """
-        Group.blacklist_group_member(group_name, target_name)
+        self.client.blacklist_group_member(group_name, target_name)
         self._output(self._green('Successfully blacklisted member from group.'))
 
     @handle_exceptions
@@ -502,7 +504,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             None
         """
-        groups = Group.list_groups()
+        groups = self.client.list_groups()
         if groups:
             self._output(self._green('Groups:\n'))
             for group in groups:
@@ -518,7 +520,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             name: The name of the Group to delete.
         """
-        Group.delete_group(name)
+        self.client.delete_group(name)
         self._output(self._green('Successfully deleted group.'))
 
     ###############################################################################################
@@ -533,7 +535,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             group_name: The name of the Group of Targets.
             action_string: The Arsenal-Syntax action string to executes.
         """
-        group_action_id = GroupAction.create_group_action(group_name, action_string)
+        group_action_id = self.client.create_group_action(group_name, action_string)
         self._output('Action created. You can track it\'s progress using \
         this group_action_id: `{}`'.format(self._id(group_action_id)))
 
@@ -545,7 +547,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             group_action_id: The identifier of group action.
         """
-        group_action = GroupAction.get_group_action(group_action_id)
+        group_action = self.client.get_group_action(group_action_id)
 
         self._output('\n{}\n'.format(self._pair(
             '\t{}'.format(group_action.group_action_id),
@@ -569,7 +571,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             group_action_id: The identifier of group action.
         """
-        GroupAction.cancel_group_action(group_action_id)
+        self.client.cancel_group_action(group_action_id)
         self._output(self._green('Successfully cancelled GroupAction'))
 
     @handle_exceptions
@@ -580,7 +582,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
         Args:
             None
         """
-        group_actions = GroupAction.list_group_actions()
+        group_actions = self.client.list_group_actions()
         self._output(self._bright('\n{0:<20} {1:<30} {2:<10}'.format('Status', 'ID', 'Action')))
         for group_action in group_actions:
             self._output('{0:<20} {1:<20} {2:<40}'.format(
@@ -601,7 +603,7 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             since(optional): All logs returned will have a timestamp greater than this.
             include_archived(optional): Should archived logs be included in the search.
         """
-        logs = Log.list_logs(application, since, include_archived)
+        logs = self.client.list_logs(application, since, include_archived)
         for log in logs:
             timestamp = datetime.fromtimestamp(log.timestamp).strftime('%Y-%m-%d %H:%M:%S')
             self._output('[{}][{}]\t[{}]\t{}'.format(
@@ -612,4 +614,4 @@ class ArsenalClient(object): #pylint: disable=too-many-public-methods
             ))
 
 if __name__ == '__main__':
-    fire.Fire(ArsenalClient)
+    fire.Fire(CLI)
