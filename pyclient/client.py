@@ -1,6 +1,8 @@
 """
 This module contains shared resources that modules in the library can use.
 """
+from os.path import exists
+
 import requests
 from requests.exceptions import ContentDecodingError
 
@@ -135,6 +137,13 @@ class ArsenalClient(object):
             self.password = password
 
         # TODO: Raise Exception
+
+    @staticmethod
+    def api_key_exists(api_key_file):
+        """
+        Determines if the keyfile exists.
+        """
+        return exists(api_key_file)
 
     def call(self, method, **kwargs):
         """

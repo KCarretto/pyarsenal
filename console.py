@@ -15,7 +15,7 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import CLI
-from pyclient import ArsenalClient
+from pyclient import ArsenalClient, API_KEY_FILE
 
 class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     """
@@ -63,13 +63,16 @@ class FireThread(threading.Thread):
     """
     Creates a separate thread and calls the google fire library on the Arsenal client.
     """
-    def __init__(self, cmd):
+    def __init__(self, cmd, cli=None):
         self._cmd = cmd
+        self.cli = cli
+        if not self.cli:
+            self.cli = CLI(api_key_file=API_KEY_FILE)
         threading.Thread.__init__(self)
 
     def run(self):
         try:
-            fire.Fire(ArsenalClient, '{}'.format(self._cmd))
+            fire.Fire(self.cli, '{}'.format(self._cmd))
         except TypeError as exception:
             print(', '.join(exception.args))
 
@@ -84,7 +87,7 @@ def main():
     """
     The main entry point of the program.
     """
-    #CLIENT = ArsenalClient()
+    cli = CLI(api_key_file=API_KEY_FILE)
     history = InMemoryHistory()
 
     while True:
@@ -96,7 +99,7 @@ def main():
                 auto_suggest=AutoSuggestFromHistory()
             )
             if text:
-                firethread = FireThread(text)
+                firethread = FireThread(text, cli)
                 firethread.start()
                 firethread.join()
                 print('')
