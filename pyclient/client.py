@@ -155,7 +155,7 @@ class ArsenalClient(object):
 
         if api_key_file:
             with open(api_key_file, 'r') as keyfile:
-                self.api_key = keyfile.readlines()[0]
+                self.api_key = keyfile.readlines()[0].strip().strip('\n')
         if username and password:
             self.login_username = username
             self.login_password = password
