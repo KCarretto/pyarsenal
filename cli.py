@@ -441,13 +441,13 @@ class CLI(object): #pylint: disable=too-many-public-methods
             include_groups=True,
             include_credentials=False)
         if targets:
-            self._output('{0:<20} {1:<20} {2:<40}'.format(
+            self._output('{0:<20} {1:<37} {2:<40}'.format(
                 'Status',
                 'Name',
                 'Groups'))
             for target in sorted(targets, key=lambda x: x.name):
                 groups = [group['name'] for group in target.groups]
-                self._output('{0:<20} {1:<20} {2:<40}'.format(
+                self._output('{0:<20} {1:<37} {2:<40}'.format(
                     self._format_session_status(target.status),
                     self._id(target.name),
                     self._green(', '.join(groups) if groups else 'None')
@@ -693,6 +693,22 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._pair('\nUser', context.username, self._yellow))
         self._output('\nAllowed Methods:\n\t')
         self._output('\n\t'.join(context.allowed_api_calls))
+
+    def UpdateRolePermissions( #pylint: disable=invalid-name
+        self,
+        role_name,
+        allowed_api_calls):
+        """
+        Override a Role's permissions with a new list.
+
+        Args:
+            role_name: The name of the role to modify.
+            allowed_api_calls: A list of API calls to allow.
+
+        i.e. UpdateRolePermissions 'attacker' "['CreateTarget']"
+        """
+        self.client.update_role_permissions(role_name, allowed_api_calls)
+        self._output(self._green('Successfully modified role permissions.'))
 
     def UpdateUserPassword( #pylint: disable=invalid-name
             self,
