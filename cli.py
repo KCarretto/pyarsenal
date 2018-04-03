@@ -699,6 +699,17 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output('\t{}'.format(method))
 
     @handle_exceptions
+    def GetCurrentContext(self): #pylint: disable=invalid-name
+        """
+        Return information about your current operating context, including your user and
+        permissions.
+        """
+        context = self.client.context
+        self._output(self._pair('\nUser', context.username, self._yellow))
+        self._output('\nAllowed Methods:\n\t')
+        self._output('\n\t'.join(context.allowed_api_calls))
+
+    @handle_exceptions
     def UpdateUserPassword( #pylint: disable=invalid-name
             self,
             current_password=None,
