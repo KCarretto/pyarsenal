@@ -90,3 +90,30 @@ class Target(ArsenalObject): # pylint: disable=too-few-public-methods
     credentials = None
     groups = None
     actions = None
+
+
+##
+# Auth Objects
+##
+class Role(ArsenalObject): # pylint: disable=too-few-public-methods
+    """
+    This object represents a Role from the teamserver.
+    """
+    name = None
+    description = None
+    allowed_api_calls = None
+    users = None
+
+class APIKey(ArsenalObject): # pylint: disable=too-few-public-methods
+    """
+    This object represents an API Key from the teamserver.
+    """
+    key = None
+
+class User(ArsenalObject): # pylint: disable=too-few-public-methods
+    """
+    This object represents a User from the teamserver.
+    """
+    username = None
+    allowed_api_calls = None
+    roles = None

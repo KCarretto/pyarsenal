@@ -63,6 +63,18 @@ from .target import (
     _list_targets_raw,
 )
 
+from .auth import (
+    create_role,
+    create_api_key,
+    create_user,
+    get_user,
+    add_role_member,
+    remove_role_member,
+    update_role_permissions,
+    update_user_password,
+    get_current_context,
+)
+
 class ArsenalClient(object):
     """
     This object is used to invoke API functions.
@@ -117,6 +129,17 @@ class ArsenalClient(object):
     _get_target_raw = _get_target_raw
     _list_targets_raw = _list_targets_raw
 
+    # Auth API
+    create_role = create_role
+    create_api_key = create_api_key
+    create_user = create_user
+    get_user = get_user
+    add_role_member = add_role_member
+    remove_role_member = remove_role_member
+    update_role_permissions = update_role_permissions
+    update_user_password = update_user_password
+    get_current_context = get_current_context
+
     def __init__(self, **kwargs):
         """
         Create an instance of the client, which will store authentication information.
@@ -131,10 +154,11 @@ class ArsenalClient(object):
         if api_key_file:
             with open(api_key_file, 'r') as keyfile:
                 self.api_key = keyfile.readlines()[0]
-
         if username and password:
             self.username = username
             self.password = password
+
+        self.context = self.get_current_context()
 
         # TODO: Raise Exception
 

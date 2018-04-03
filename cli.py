@@ -640,6 +640,31 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 log.message
             ))
 
+    ###############################################################################################
+    #                                 Auth Methods                                                #
+    ###############################################################################################
+    @handle_exceptions
+    def CreateUser(self, username=None, password=None): #pylint: disable=invalid-name
+        """
+        This creates a user.
+
+        Args:
+            username: The username for the new user, must not already exist.
+            password: The password for the new user.
+
+            If the arguments are not specified, you will be prompted to enter them securely.
+        """
+        if not username:
+            username = input('Username: ')
+        if not password:
+            password = getpass('Password: ')
+            confirm = getpass('Confirm Password: ')
+            if password != confirm:
+                self._output(self._red('Passwords did not match'))
+
+        self.client.create_user(username, password)
+        self._output(self._green('Successfully created user: {}'.format(username)))
+
 def main():
     """
     A main entry point for executing this file as a script.

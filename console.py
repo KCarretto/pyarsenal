@@ -15,7 +15,7 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import CLI
-from pyclient import ArsenalClient, API_KEY_FILE
+from pyclient import API_KEY_FILE
 
 class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     """
@@ -24,11 +24,13 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     _api_methods = {}
     _api_completers = {}
     _names = []
-    def __init__(self):
+    def __init__(self, client):
         """
         Constructor for the completer, used to gather API information.
         """
-        self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
+        self._api_methods = client.get_user(client.context).allowed_api_calls
+        if '*' in self._api_methods:
+            self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
         #self._names = [target.name for target in CLIENT.list_targets(include_status=False)]
         #self._names += [group.name for group in CLIENT.list_groups()]
@@ -94,7 +96,7 @@ def main():
         try:
             text = prompt(
                 'Arsenal >> ',
-                completer=ArsenalCompleter(),
+                completer=ArsenalCompleter(cli.client),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory()
             )
