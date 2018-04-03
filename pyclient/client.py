@@ -4,7 +4,7 @@ This module contains shared resources that modules in the library can use.
 from os.path import exists
 
 import requests
-from requests.exceptions import ContentDecodingError
+from requests.exceptions import ContentDecodingError, ConnectionError, Timeout
 
 from .config import TEAMSERVER_URI
 from .exceptions import ServerConnectionError, ServerInternalError, parse_error
@@ -182,7 +182,7 @@ class ArsenalClient(object):
         params['method'] = method
 
         if hasattr(self, 'api_key') and self.api_key:
-            params['api_key'] = self.api_key
+            params['login_api_key'] = self.api_key
         elif hasattr(self, 'login_username') and hasattr(self, 'login_password'):
             params['login_username'] = self.login_username
             params['login_password'] = self.login_password
@@ -192,6 +192,9 @@ class ArsenalClient(object):
                 parse_error(resp)
             return resp
         except ContentDecodingError:
-            raise ServerInternalError("Teamserver encountered an unexpected error.")
-        #except Exception as exception:
-        #    raise ServerConnectionError("Could not connect to teamserver. {}".format(exception))
+            raise ServerInternalError("Error: The teamserver encountered an unexpected error.")
+        except Timeout:
+            raise ServerInternalError(
+                "Error: The teamserver was unable to handle the request in time.")
+        except ConnectionError as exception:
+            raise ServerConnectionError("Could not connect to the teamserver. {}".format(exception))

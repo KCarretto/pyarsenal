@@ -695,9 +695,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output('\n\t'.join(context.allowed_api_calls))
 
     def UpdateRolePermissions( #pylint: disable=invalid-name
-        self,
-        role_name,
-        allowed_api_calls):
+            self,
+            role_name,
+            allowed_api_calls):
         """
         Override a Role's permissions with a new list.
 
