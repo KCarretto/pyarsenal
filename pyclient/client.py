@@ -158,7 +158,9 @@ class ArsenalClient(object):
 
         if hasattr(self, 'api_key') and self.api_key:
             params['api_key'] = self.api_key
-
+        elif hasattr(self, 'username') and hasattr(self, 'password'):
+            params['username'] = self.username
+            params['password'] = self.password
         try:
             return requests.post(TEAMSERVER_URI, json=params).json()
         except ContentDecodingError:
