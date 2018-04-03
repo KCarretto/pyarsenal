@@ -2,7 +2,6 @@
 This module contains Session API functions.
 """
 from .objects import Action, Session
-from .exceptions import parse_error
 
 def create_session( #pylint: disable=too-many-arguments
         self,
@@ -24,9 +23,6 @@ def create_session( #pylint: disable=too-many-arguments
         config_dict=config_dict,
         facts=facts)
 
-    if resp.get('error', True):
-        parse_error(resp)
-
     return resp['session_id']
 
 def get_session(self, session_id):
@@ -34,8 +30,6 @@ def get_session(self, session_id):
     Returns an Session object from the teamserver.
     """
     resp = self._get_session_raw(session_id) # pylint: disable=protected-access
-    if resp.get('error', True):
-        parse_error(resp)
 
     return Session(resp['session'])
 
@@ -60,9 +54,6 @@ def session_checkin(self, session_id, responses=None, config=None, facts=None):
         responses=responses,
         config=config,
         facts=facts)
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     actions = resp.get('actions', [])
 
@@ -90,9 +81,6 @@ def update_session_config(self, session_id, **kwargs):
         config_dict=config_dict
     )
 
-    if resp.get('error', True):
-        parse_error(resp)
-
     return resp.get('config', {})
 
 def list_sessions(self):
@@ -100,9 +88,6 @@ def list_sessions(self):
     Returns a list of Session Objects from the teamserver.
     """
     resp = self._list_sessions_raw() # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return [Session(session) for session_id, session in resp['sessions'].items()]
 

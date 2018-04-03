@@ -1,7 +1,6 @@
 """
 This module contains Target API functions.
 """
-from .exceptions import parse_error
 from .objects import Target
 
 def create_target(
@@ -12,23 +11,20 @@ def create_target(
     """
     This method creates a Target on the teamserver.
     """
-    resp = self.call(
+    self.call(
         'CreateTarget',
         name=name,
         mac_addrs=mac_addrs,
-        facts=facts)
+        facts=facts,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def get_target(self, name, **kwargs):
     """
     Returns a Target object from the teamserver.
     """
     resp = self._get_target_raw(name, kwargs) # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return Target(resp['target'])
 
@@ -51,32 +47,30 @@ def rename_target(self, name, new_name):
     """
     Renames a Target object on the teamserver.
     """
-    resp = self.call(
+    self.call(
         'RenameTarget',
         name=name,
-        new_name=new_name)
-    if resp.get('error', True):
-        parse_error(resp)
+        new_name=new_name,
+    )
+
+    return True
 
 def set_target_facts(self, name, facts):
     """
     Override Target facts with updated information.
     """
-    resp = self.call(
+    self.call(
         'GetTarget',
         name=name,
         facts=facts)
-    if resp.get('error', True):
-        parse_error(resp)
+
+    return True
 
 def list_targets(self, **kwargs):
     """
     Returns a list of Target Objects from the teamserver.
     """
     resp = self._list_targets_raw(kwargs) # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return [Target(target) for name, target in resp['targets'].items()]
 

@@ -1,19 +1,17 @@
 """
 This module contains Group API functions.
 """
-from .exceptions import parse_error
 from .objects import Group
 
 def create_group(self, name):
     """
     This method creates a Group on the teamserver.
     """
-    resp = self.call(
+    self.call(
         'CreateGroup',
-        name=name,)
-
-    if resp.get('error', True):
-        parse_error(resp)
+        name=name,
+    )
+    return True
 
 def get_group(self, name):
     """
@@ -21,9 +19,6 @@ def get_group(self, name):
     """
 
     resp = self._get_group_raw(name) # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return Group(resp.get('group'))
 
@@ -40,58 +35,55 @@ def add_group_member(self, group_name, target_name):
     """
     This method whitelists a Target as a member of a Group.
     """
-    resp = self.call(
+    self.call(
         'AddGroupMember',
         group_name=group_name,
-        target_name=target_name)
+        target_name=target_name,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def remove_group_member(self, group_name, target_name):
     """
     This method removes a Target from the whitelist of a Group.
     """
-    resp = self.call(
+    self.call(
         'RemoveGroupMember',
         group_name=group_name,
-        target_name=target_name)
+        target_name=target_name,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def blacklist_group_member(self, group_name, target_name):
     """
     This method removes a Target from the whitelist of a Group.
     It also prevents any automember rules from including the Target.
     """
-    resp = self.call(
+    self.call(
         'BlacklistGroupMember',
         group_name=group_name,
-        target_name=target_name)
+        target_name=target_name,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def delete_group(self, name):
     """
     This method deletes a Group from the teamserver.
     """
-    resp = self.call(
+    self.call(
         'DeleteGroup',
-        name=name,)
+        name=name,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def list_groups(self):
     """
     This method returns a list of Group objects on the teamserver.
     """
     resp = self._list_groups_raw() # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return [Group(group) for name, group in resp.get('groups', {}).items()]
 

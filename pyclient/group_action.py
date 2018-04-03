@@ -2,7 +2,6 @@
 This module contains GroupAction API functions.
 """
 from .objects import Action, GroupAction
-from .exceptions import parse_error
 
 def create_group_action(self, group_name, action_string):
     """
@@ -14,9 +13,6 @@ def create_group_action(self, group_name, action_string):
         action_string=action_string
     )
 
-    if resp.get('error', True):
-        parse_error(resp)
-
     return resp['group_action_id']
 
 def get_group_action(self, group_action_id):
@@ -24,9 +20,6 @@ def get_group_action(self, group_action_id):
     This method fetches information about a GroupAction.
     """
     resp = self._get_group_action_raw(group_action_id) # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     group_action = GroupAction(resp['group_action'])
 
@@ -47,13 +40,12 @@ def cancel_group_action(self, group_action_id):
     """
     This method attempts to cancel a group action.
     """
-    resp = self.call(
+    self.call(
         'CancelGroupAction',
         group_action_id=group_action_id
     )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def list_group_actions(self):
     """
@@ -61,9 +53,6 @@ def list_group_actions(self):
     """
 
     resp = self._list_group_actions_raw() # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     group_actions = []
     if resp['group_actions']:

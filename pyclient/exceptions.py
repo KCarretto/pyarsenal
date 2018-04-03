@@ -90,6 +90,18 @@ class MissingParameter(APIException):
     """
     name = 'missing-parameter'
 
+class InvaidUser(APIException):
+    """
+    Raised when the username sent to the teamserver is not a valid user.
+    """
+    name = 'invalid-user'
+
+class InvalidCredentials(APIException):
+    """
+    Raised when the credentials sent to the teamserver are invalid.
+    """
+    name = 'invalid-credentials'
+
 def parse_error(data):
     """
     Parse an error response and raise the appropriate exception.
@@ -108,12 +120,15 @@ def parse_error(data):
         ResourceNotFound.name: ResourceNotFound,
         ResourceAlreadyExists.name: ResourceAlreadyExists,
         MissingParameter.name: MissingParameter,
+
+        InvaidUser.name: InvaidUser,
+        InvalidCredentials.name: InvalidCredentials,
     }
     error_type = data.get('error_type', APIException.name)
 
     exception = errors.get(error_type, APIException)
 
-    raise exception(data.get('description'), 'No description available.')
+    raise exception(data.get('description', 'No description available.'))
 
 def handle_exceptions(func):
     """
@@ -131,6 +146,9 @@ def handle_exceptions(func):
         try:
             retval = func(*args, **kwargs)
             return retval
+
+        except InvaidUser:
+            print('Error: Invalid user.')
 
         except ServerConnectionError:
             print("Error: Could not connect to teamserver.")

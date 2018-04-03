@@ -7,7 +7,7 @@ import requests
 from requests.exceptions import ContentDecodingError
 
 from .config import TEAMSERVER_URI
-from .exceptions import ServerConnectionError, ServerInternalError
+from .exceptions import ServerConnectionError, ServerInternalError, parse_error
 
 from .action import (
     create_action,
@@ -162,8 +162,10 @@ class ArsenalClient(object):
             params['username'] = self.username
             params['password'] = self.password
         try:
-            return requests.post(TEAMSERVER_URI, json=params).json()
+            resp = requests.post(TEAMSERVER_URI, json=params).json()
+            parse_error(resp)
+            return resp
         except ContentDecodingError:
             raise ServerInternalError("Teamserver encountered an unexpected error.")
-        except Exception as exception:
-            raise ServerConnectionError("Could not connect to teamserver. {}".format(exception))
+        #except Exception as exception:
+        #    raise ServerConnectionError("Could not connect to teamserver. {}".format(exception))

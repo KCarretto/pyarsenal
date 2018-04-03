@@ -1,7 +1,6 @@
 """
 This module contains Log API functions.
 """
-from .exceptions import parse_error
 from .objects import Log
 
 def create_log(
@@ -12,14 +11,14 @@ def create_log(
     """
     Generate a log on the teamserver.
     """
-    resp = self.call(
+    self.call(
         'CreateLog',
         application=application,
         level=level,
-        message=message)
+        message=message,
+    )
 
-    if resp.get('error', True):
-        parse_error(resp)
+    return True
 
 def list_logs(
         self,
@@ -30,9 +29,6 @@ def list_logs(
     List logs from the teamserver, optionally filtering.
     """
     resp = self._list_logs_raw(application, since, include_archived) # pylint: disable=protected-access
-
-    if resp.get('error', True):
-        parse_error(resp)
 
     return [Log(log_data) for log_data in resp['logs']]
 
