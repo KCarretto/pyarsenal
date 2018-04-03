@@ -60,7 +60,7 @@ def set_target_facts(self, name, facts):
     Override Target facts with updated information.
     """
     self.call(
-        'GetTarget',
+        'SetTargetFacts',
         name=name,
         facts=facts)
 
