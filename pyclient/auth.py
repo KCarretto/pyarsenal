@@ -113,4 +113,4 @@ def get_current_context(self):
     resp = self.call(
         'GetCurrentContext'
     )
-    return resp['username']
+    return User(resp['user'])

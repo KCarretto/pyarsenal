@@ -79,6 +79,8 @@ class ArsenalClient(object):
     """
     This object is used to invoke API functions.
     """
+    context = None
+
     # Action API
     create_action = create_action
     get_action = get_action
@@ -159,7 +161,6 @@ class ArsenalClient(object):
             self.login_password = password
 
         self.context = self.get_current_context()
-
         # TODO: Raise Exception
 
     @staticmethod
