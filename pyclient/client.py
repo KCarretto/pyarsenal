@@ -163,7 +163,8 @@ class ArsenalClient(object):
             params['password'] = self.password
         try:
             resp = requests.post(TEAMSERVER_URI, json=params).json()
-            parse_error(resp)
+            if resp.get('error'):
+                parse_error(resp)
             return resp
         except ContentDecodingError:
             raise ServerInternalError("Teamserver encountered an unexpected error.")
