@@ -15,7 +15,7 @@ def create_user(self, username, password):
 
     return True
 
-def create_api_key(self, allowed_api_calls, user_context=None):
+def create_api_key(self, allowed_api_calls=None, user_context=None):
     """
     Create an API Key for the current user.
 
