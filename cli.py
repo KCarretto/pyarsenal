@@ -228,6 +228,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 methods = filter(lambda x: not x.startswith('_'), dir(self))
 
             self._output('\n'.join(sorted(methods)))
+            return
 
         try:
             self._output(self.__getattribute__(api_method).__doc__)
