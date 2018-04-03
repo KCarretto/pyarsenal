@@ -666,7 +666,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._green('Successfully created user: {}'.format(username)))
 
     @handle_exceptions
-    def CreateAPIKey(self, allowed_api_calls=None, user_context=None): #pylint: disable=invalid-name
+    def CreateAPIKey(self, allowed_api_calls, user_context=None): #pylint: disable=invalid-name
         """
         Generate an API key for the user. Optionally limit it's permissions by supplying a list
         of allowed api calls for it. By default, the API key will assume all permissions of the
