@@ -102,6 +102,12 @@ class InvalidCredentials(APIException):
     """
     name = 'invalid-credentials'
 
+class PermissionDenied(APIException):
+    """
+    Raised when the user does not have permission to execute a function.
+    """
+    name = 'permission-denied'
+
 def parse_error(data):
     """
     Parse an error response and raise the appropriate exception.
@@ -123,6 +129,7 @@ def parse_error(data):
 
         InvaidUser.name: InvaidUser,
         InvalidCredentials.name: InvalidCredentials,
+        PermissionDenied.name: PermissionDenied,
     }
     error_type = data.get('error_type', APIException.name)
 
