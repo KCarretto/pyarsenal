@@ -28,6 +28,7 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         """
         Constructor for the completer, used to gather API information.
         """
+        self._api_methods = methods
         if '*' in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
