@@ -146,7 +146,7 @@ def handle_exceptions(func):
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs): #pylint: disable=too-many-return-statements
+    def wrapper(*args, **kwargs): #pylint: disable-all
         """
         This uses the func tools library to wrap a function.
         """
@@ -154,16 +154,54 @@ def handle_exceptions(func):
             retval = func(*args, **kwargs)
             return retval
 
+        except ActionUnboundSession:
+            print('Error: Session that Action was assigned to no longer exists.')
+        except SessionUnboundTarget:
+            print('Error: Target that Session was assigned to no longer exists.')
+        except CannotCancelAction:
+            print('Error: Cannot cancel action.\
+            The action may have already been sent to an agent.')
+        except CannotAssignAction:
+            print('Error: Cannot assign action to session.\
+            The action may be bound to another session_id.')
+        except CannotBindAction:
+            print('Error: The Action cannot be assigned to this\
+            Target because it does not exist.')
+        except ActionSyntaxError:
+            print('Error: Invalid Action syntax.')
+        except MembershipError as exception:
+            print('Error: Invalid Membership Modification.')
+            print(exception)
+
+        except ValidationError:
+            print('Error: Invalid argument type.')
+        except ResourceNotFound:
+            print('Error: One or more requested resources were not found.')
+        except ResourceAlreadyExists:
+            print('Error: This resource already exists.')
+        except MissingParameter:
+            print('Error: Missing required parameter.')
+
+
         except InvaidUser:
             print('Error: Invalid user.')
-
         except InvalidCredentials:
             print('Error: Invalid Credentials.')
+        except PermissionDenied:
+            print('Error: Permission denied.')
 
         except ServerConnectionError:
             print("Error: Could not connect to teamserver.")
-
         except ServerInternalError:
             print("Error: Teamserver encountered unexpected error")
+
+        except APIException as exception:
+            print('Error: Teamserver encountered unhandled exception')
+            print(exception)
+
+        except Exception as exception: # pylint: disable=broad-except
+            print('Error: Client encountered unhandled exception')
+            print(type(exception))
+            print(exception)
 
     return wrapper

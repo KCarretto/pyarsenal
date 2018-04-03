@@ -16,6 +16,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import CLI
 from pyclient import API_KEY_FILE
+from pyclient.exceptions import handle_exceptions
 
 class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     """
@@ -72,11 +73,9 @@ class FireThread(threading.Thread):
             self.cli = CLI(api_key_file=API_KEY_FILE)
         threading.Thread.__init__(self)
 
+    @handle_exceptions
     def run(self):
-        try:
-            fire.Fire(self.cli, '{}'.format(self._cmd))
-        except TypeError as exception:
-            print(', '.join(exception.args))
+        fire.Fire(self.cli, '{}'.format(self._cmd))
 
 def exit_arsenal():
     """

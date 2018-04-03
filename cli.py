@@ -11,10 +11,8 @@ import fire
 try:
     # Attempt relative import, will not work if __main__
     from .pyclient import ArsenalClient, API_KEY_FILE
-    from .pyclient.exceptions import handle_exceptions
 except Exception: #pylint: disable=broad-except
     from pyclient import ArsenalClient, API_KEY_FILE
-    from pyclient.exceptions import handle_exceptions
 
 class CLI(object): #pylint: disable=too-many-public-methods
     """
@@ -238,7 +236,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                              Action Methods                                                 #
     ###############################################################################################
-    @handle_exceptions
     def CreateAction(self, target_name, action_string, bound_session_id=None): #pylint: disable=invalid-name
         """
         This method creates an Action for the given Target.
@@ -253,7 +250,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output('Action created. \
         You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
 
-    @handle_exceptions
     def GetAction(self, action_id): #pylint: disable=invalid-name
         """
         This method fetches an Action from the teamserver.
@@ -273,11 +269,10 @@ class CLI(object): #pylint: disable=too-many-public-methods
             stdout = action.response.get('stdout')
             stderr = action.response.get('stderr')
             if stdout:
-                self._output(self._pair('\tstdout', stdout, self._green))
+                self._output(self._pair('\tstdout', '\n{}'.format(stdout), self._green))
             if stderr:
-                self._output(self._pair('\tstderr', stderr, self._red))
+                self._output(self._pair('\tstderr', '\n{}'.format(stderr), self._red))
 
-    @handle_exceptions
     def CancelAction(self, action_id): #pylint: disable=invalid-name
         """
         This attempts to cancel an Action.
@@ -294,7 +289,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output(
                 self._red('Could not cancel Action `{}`.'.format(self._id(action_id))))
 
-    @handle_exceptions
     def ListActions(self): #pylint: disable=invalid-name
         """
         This lists all Actions that are currently tracked by the teamserver.
@@ -323,7 +317,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                              Session Methods                                                #
     ###############################################################################################
-    @handle_exceptions
     def GetSession(self, session_id): #pylint: disable=invalid-name
         """
         This method fetches an Session from the teamserver.
@@ -340,7 +333,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._pair('\tLast Seen', lastseen))
         self._output(self._pair('\tconfig', self._format_facts(session.config)))
 
-    @handle_exceptions
     def ListSessions(self, sortby='target_name'): #pylint: disable=invalid-name
         """
         This lists all Sessions that are currently tracked by the teamserver.
@@ -362,7 +354,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                               Target Methods                                                #
     ###############################################################################################
-    @handle_exceptions
     def GetTarget(self, name, show_facts=False, hide_actions=False): #pylint: disable=invalid-name
         """
         Fetch information about a Target.
@@ -424,7 +415,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         else:
             self._output(self._red('Target not found.'))
 
-    @handle_exceptions
     def RenameTarget(self, name, new_name): #pylint: disable=invalid-name
         """
         This renames a target with the given name, to the new_name.
@@ -436,7 +426,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.rename_target(name, new_name)
         self._output(self._green('Target renamed successfully.'))
 
-    @handle_exceptions
     def ListTargets(self): #pylint: disable=invalid-name
         """
         This lists all Targets that are currently tracked by the teamserver.
@@ -469,7 +458,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                   Group Methods                                             #
     ###############################################################################################
-    @handle_exceptions
     def CreateGroup(self, name): #pylint: disable=invalid-name
         """
         Create a Group of Targets.
@@ -480,7 +468,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.create_group(name)
         self._output(self._green('Successfully created group: {}'.format(name)))
 
-    @handle_exceptions
     def GetGroup(self, name): #pylint: disable=invalid-name
         """
         Fetch information about a Group.
@@ -500,7 +487,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 ', '.join(group.blacklist_members),
                 self._red))
 
-    @handle_exceptions
     def AddGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
         """
         Add a Target to a Group's whitelist.
@@ -512,7 +498,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.add_group_member(group_name, target_name)
         self._output(self._green('Successfully added member to group.'))
 
-    @handle_exceptions
     def RemoveGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
         """
         Remove a Target from a Group's whitelist.
@@ -524,7 +509,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.remove_group_member(group_name, target_name)
         self._output(self._green('Successfully remove member from group.'))
 
-    @handle_exceptions
     def BlacklistGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
         """
         Remove a Target from a Group's whitelist and prevent it from being included
@@ -537,7 +521,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.blacklist_group_member(group_name, target_name)
         self._output(self._green('Successfully blacklisted member from group.'))
 
-    @handle_exceptions
     def ListGroups(self): #pylint: disable=invalid-name
         """
         List all Groups on the teamserver.
@@ -553,7 +536,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         else:
             self._output(self._red('No Groups available.'))
 
-    @handle_exceptions
     def DeleteGroup(self, name): #pylint: disable=invalid-name
         """
         Delete a group from the teamserver.
@@ -567,7 +549,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                             Group Action Methods                                            #
     ###############################################################################################
-    @handle_exceptions
     def CreateGroupAction(self, group_name, action_string): #pylint: disable=invalid-name
         """
         Queue an Action for a Group of Targets.
@@ -580,7 +561,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output('Action created. You can track it\'s progress using \
         this group_action_id: `{}`'.format(self._id(group_action_id)))
 
-    @handle_exceptions
     def GetGroupAction(self, group_action_id): #pylint: disable=invalid-name
         """
         Fetch information about a Group Action from the teamserver.
@@ -603,7 +583,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
                     action.target_name,
                     action.action_id))
 
-    @handle_exceptions
     def CancelGroupAction(self, group_action_id): #pylint: disable=invalid-name
         """
         Attempt to cancel a group action. This will only work for targets that have not
@@ -615,7 +594,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.cancel_group_action(group_action_id)
         self._output(self._green('Successfully cancelled GroupAction'))
 
-    @handle_exceptions
     def ListGroupActions(self): #pylint: disable=invalid-name
         """
         List all Group Actions.
@@ -636,7 +614,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                 Log Methods                                                 #
     ###############################################################################################
-    @handle_exceptions
     def ListLogs(self, application=None, since=None, include_archived=None):  #pylint: disable=invalid-name
         """
         This lists logs from the teamserver, and may be optionally filtered.
@@ -659,7 +636,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                 Auth Methods                                                #
     ###############################################################################################
-    @handle_exceptions
     def CreateUser(self, username=None, password=None): #pylint: disable=invalid-name
         """
         This creates a user.
@@ -681,7 +657,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.create_user(username, password)
         self._output(self._green('Successfully created user: {}'.format(username)))
 
-    @handle_exceptions
     def CreateAPIKey(self, allowed_api_calls=None, user_context=None): #pylint: disable=invalid-name
         """
         Generate an API key for the user. Optionally limit it's permissions by supplying a list
@@ -694,7 +669,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
         self._output(self._pair(self._green('Successfully generated API Key'), key, self._yellow))
 
-    @handle_exceptions
     def GetUser(self, username): #pylint: disable=invalid-name
         """
         Fetch information about a user from the teamserver.
@@ -710,7 +684,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         for method in user.allowed_api_calls:
             self._output('\t{}'.format(method))
 
-    @handle_exceptions
     def GetCurrentContext(self): #pylint: disable=invalid-name
         """
         Return information about your current operating context, including your user and
@@ -721,7 +694,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output('\nAllowed Methods:\n\t')
         self._output('\n\t'.join(context.allowed_api_calls))
 
-    @handle_exceptions
     def UpdateUserPassword( #pylint: disable=invalid-name
             self,
             current_password=None,
@@ -754,7 +726,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
         self._output(self._green('Successfully updated password.'))
 
-    @handle_exceptions
     def AddRoleMember(self, role_name, username): #pylint: disable=invalid-name
         """
         Add the user to the given role.
