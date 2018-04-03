@@ -223,8 +223,11 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         if api_method is None:
             self._output('\nAvailable methods:\n')
-            self._output('\n'.join(self.client.context.allowed_api_calls))
-            return
+            methods = self.client.context.allowed_api_calls
+            if '*' in methods:
+                methods = filter(lambda x: not x.startswith('_'), dir(self))
+
+            self._output('\n'.join(sorted(methods)))
 
         try:
             self._output(self.__getattribute__(api_method).__doc__)
