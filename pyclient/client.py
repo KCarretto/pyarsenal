@@ -155,8 +155,8 @@ class ArsenalClient(object):
             with open(api_key_file, 'r') as keyfile:
                 self.api_key = keyfile.readlines()[0]
         if username and password:
-            self.username = username
-            self.password = password
+            self.login_username = username
+            self.login_password = password
 
         self.context = self.get_current_context()
 
@@ -182,9 +182,9 @@ class ArsenalClient(object):
 
         if hasattr(self, 'api_key') and self.api_key:
             params['api_key'] = self.api_key
-        elif hasattr(self, 'username') and hasattr(self, 'password'):
-            params['username'] = self.username
-            params['password'] = self.password
+        elif hasattr(self, 'login_username') and hasattr(self, 'login_password'):
+            params['login_username'] = self.login_username
+            params['login_password'] = self.login_password
         try:
             resp = requests.post(TEAMSERVER_URI, json=params).json()
             if resp.get('error'):
