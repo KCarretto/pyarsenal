@@ -661,9 +661,84 @@ class CLI(object): #pylint: disable=too-many-public-methods
             confirm = getpass('Confirm Password: ')
             if password != confirm:
                 self._output(self._red('Passwords did not match'))
-
+                return
         self.client.create_user(username, password)
         self._output(self._green('Successfully created user: {}'.format(username)))
+
+    @handle_exceptions
+    def CreateAPIKey(self, allowed_api_calls=None, user_context=None): #pylint: disable=invalid-name
+        """
+        Generate an API key for the user. Optionally limit it's permissions by supplying a list
+        of allowed api calls for it. By default, the API key will assume all permissions of the
+        current user.
+
+        Administrators may specify another user to create a key for using 'user_context'.
+        """
+        key = self.client.create_api_key(allowed_api_calls, user_context)
+
+        self._output(self._pair(self._green('Successfully generated API Key'), key, self._yellow))
+
+    @handle_exceptions
+    def GetUser(self, username): #pylint: disable=invalid-name
+        """
+        Fetch information about a user from the teamserver.
+        """
+        user = self.client.get_user(username, True, True)
+
+        self._output(self._pair('\tName', user.username, self._id))
+        self._output(self._pair(
+            '\tRoles',
+            ', '.join(role['name'] for role in user.roles),
+            self._yellow))
+        self._output('\nAllowed API Methods:')
+        for method in user.allowed_api_calls:
+            self._output('\t{}'.format(method))
+
+    @handle_exceptions
+    def UpdateUserPassword( #pylint: disable=invalid-name
+            self,
+            current_password=None,
+            new_password=None,
+            user_context=None):
+        """
+        This updates the current user's password.
+
+        Args:
+            current_password: The current password for the user.
+            new_password: The desired password for the user.
+
+            If the arguments are not specified, you will be prompted to enter them securely.
+
+        Administrators may specify another user to create a key for using 'user_context'.
+        """
+        if not current_password:
+            current_password = getpass('Current Password: ')
+        if not new_password:
+            new_password = getpass('New Password: ')
+            confirm = getpass('Confirm New Password: ')
+            if new_password != confirm:
+                self._output(self._red('Passwords did not match'))
+                return
+
+        self.client.update_user_password(current_password, new_password, user_context)
+
+        if hasattr(self.client, 'login_password') and self.client.login_password:
+            self.client.login_password = new_password
+
+        self._output(self._green('Successfully updated password.'))
+
+    @handle_exceptions
+    def AddRoleMember(self, role_name, username): #pylint: disable=invalid-name
+        """
+        Add the user to the given role.
+
+        Args:
+            role_name: The name of the role to modify.
+            username: The name of the user to add.
+        """
+        self.client.add_role_member(role_name, username)
+
+        self._output(self._green('Successfully added user to role.'))
 
 def main():
     """

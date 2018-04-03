@@ -27,7 +27,7 @@ def create_api_key(self, allowed_api_calls, user_context=None):
         user_context=user_context,
     )
 
-    return APIKey(resp['api_key'])
+    return resp['api_key']
 
 def create_role(self, name, allowed_api_calls, users):
     """

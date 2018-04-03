@@ -150,6 +150,9 @@ def handle_exceptions(func):
         except InvaidUser:
             print('Error: Invalid user.')
 
+        except InvalidCredentials:
+            print('Error: Invalid Credentials.')
+
         except ServerConnectionError:
             print("Error: Could not connect to teamserver.")
 
