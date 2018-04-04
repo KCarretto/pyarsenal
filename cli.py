@@ -846,7 +846,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 ','.join(key.allowed_api_calls) if key.allowed_api_calls else 'None')
             self._output(self._pair(key.owner, allowed_api_calls))
 
-    def DeleteUser(self, username):
+    def DeleteUser(self, username): #pylint: disable=invalid-name
         """
         Delete a user.
 
@@ -856,7 +856,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.delete_user(username)
         self._output(self._green('Successfully deleted user'))
 
-    def DeleteRole(self, role_name):
+    def DeleteRole(self, role_name): #pylint: disable=invalid-name
         """
         Delete a role.
 
@@ -866,7 +866,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.delete_role(role_name)
         self._output(self._green('Successfully deleted role'))
 
-    def RevokeAPIKey(self, api_key, user_context=None):
+    def RevokeAPIKey(self, api_key, user_context=None): #pylint: disable=invalid-name
         """
         Revoke an API Key.
 

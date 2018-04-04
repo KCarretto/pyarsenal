@@ -4,7 +4,7 @@ This module contains shared resources that modules in the library can use.
 from os.path import exists
 
 import requests
-from requests.exceptions import ContentDecodingError, ConnectionError, Timeout
+from requests.exceptions import ContentDecodingError, ConnectionError, Timeout #pylint: disable=redefined-builtin
 
 from .config import TEAMSERVER_URI
 from .exceptions import ServerConnectionError, ServerInternalError, parse_error
