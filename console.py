@@ -25,7 +25,7 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     _api_methods = {}
     _api_completers = {}
     _names = []
-    def __init__(self, methods, names):
+    def __init__(self, methods, target_names, group_names):
         """
         Constructor for the completer, used to gather API information.
         """
@@ -33,28 +33,46 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         if '*' in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
-        self._names = names
-        #self._names = [target.name for target in CLIENT.list_targets(include_status=False)]
-        #self._names += [group.name for group in CLIENT.list_groups()]
+        self.target_names = target_names
+        self.group_names = group_names
+
+        self.auto_completers = {
+            'GetTarget': [
+                WordCompleter(self.target_names)
+            ],
+            'GetGroup': [
+                WordCompleter(self.group_names)
+            ],
+            'CreateAction': [
+                WordCompleter(self.target_names)
+            ],
+            'CreateGroupAction': [
+                WordCompleter(self.group_names)
+            ],
+        }
 
         self.api_completer = WordCompleter(self._api_methods, True)
-        self.name_completer = WordCompleter(self._names)
 
     def get_completions(self, document, complete_event):
         """
         A function for determining auto-complete results.
         """
         words = document.text.split(' ')
-        if len(words) > 3:
-            return
 
         if words and words[0] in self._api_methods:
-            yield from (Completion(
-                completion.text,
-                completion.start_position,
-                display=completion.display)
-                        for completion
-                        in self.name_completer.get_completions(document, complete_event))
+            completers = self.auto_completers.get(words[0])
+            if completers:
+                try:
+                    completer = completers[len(words)-2]
+                    if completer:
+                        yield from (Completion(
+                            completion.text,
+                            completion.start_position,
+                            display=completion.display)
+                                    for completion
+                                    in completer.get_completions(document, complete_event))
+                except IndexError:
+                    pass
         else:
             yield from (Completion(
                 completion.text,
@@ -103,18 +121,18 @@ def main():
     cli = CLI(api_key_file=API_KEY_FILE)
     history = InMemoryHistory()
     methods = cli.client.context.allowed_api_calls
-    names = [target.name for target in cli.client.list_targets(include_status=False)]
-    names += [group.name for group in cli.client.list_groups()]
+    target_names = [target.name for target in cli.client.list_targets(include_status=False)]
+    group_names = [group.name for group in cli.client.list_groups()]
     while True:
         try:
             text = prompt(
                 'Arsenal >> ',
-                completer=ArsenalCompleter(methods, names),
+                completer=ArsenalCompleter(methods, target_names, group_names),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory()
             )
             if text:
-                cmd = parse_command(text)
+                text = parse_command(text)
                 firethread = FireThread(text, cli)
                 firethread.start()
                 firethread.join()

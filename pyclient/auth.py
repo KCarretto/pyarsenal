@@ -176,12 +176,13 @@ def delete_role(self, role_name):
     )
     return True
 
-def revoke_api_key(self, api_key):
+def revoke_api_key(self, api_key, user_context=None):
     """
     Revoke an API key.
     """
     self.call(
         'RevokeAPIKey',
-        api_key=api_key
+        api_key=api_key,
+        user_context=user_context,
     )
     return True

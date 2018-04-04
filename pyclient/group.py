@@ -92,5 +92,5 @@ def _list_groups_raw(self):
     Returns the raw response of the ListGroups API call.
     """
     return self.call(
-        'ListActions'
+        'ListGroups'
     )

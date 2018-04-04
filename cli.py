@@ -846,6 +846,38 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 ','.join(key.allowed_api_calls) if key.allowed_api_calls else 'None')
             self._output(self._pair(key.owner, allowed_api_calls))
 
+    def DeleteUser(self, username):
+        """
+        Delete a user.
+
+        Args:
+            username: The name of the user.
+        """
+        self.client.delete_user(username)
+        self._output(self._green('Successfully deleted user'))
+
+    def DeleteRole(self, role_name):
+        """
+        Delete a role.
+
+        Args:
+            role_name: The name of the role.
+        """
+        self.client.delete_role(role_name)
+        self._output(self._green('Successfully deleted role'))
+
+    def RevokeAPIKey(self, api_key, user_context=None):
+        """
+        Revoke an API Key.
+
+        Args:
+            api_key: The API Key to revoke. You must own this key.
+
+        Administrators may specify another user to revoke keys for using 'user_context'.
+        """
+        self.client.revoke_api_key(api_key, user_context)
+        self._output(self._green('Successfully revoked API key'))
+
 def main():
     """
     A main entry point for executing this file as a script.
