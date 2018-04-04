@@ -25,7 +25,7 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
     _api_methods = {}
     _api_completers = {}
     _names = []
-    def __init__(self, methods):
+    def __init__(self, methods, names):
         """
         Constructor for the completer, used to gather API information.
         """
@@ -33,6 +33,7 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         if '*' in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
+        self._names = names
         #self._names = [target.name for target in CLIENT.list_targets(include_status=False)]
         #self._names += [group.name for group in CLIENT.list_groups()]
 
@@ -91,11 +92,13 @@ def main():
     cli = CLI(api_key_file=API_KEY_FILE)
     history = InMemoryHistory()
     methods = cli.client.context.allowed_api_calls
+    names = [target.name for target in cli.client.list_targets(include_status=False)]
+    names += [group.name for group in cli.client.list_groups()]
     while True:
         try:
             text = prompt(
                 'Arsenal >> ',
-                completer=ArsenalCompleter(methods),
+                completer=ArsenalCompleter(methods, names),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory()
             )
