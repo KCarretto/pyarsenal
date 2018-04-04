@@ -85,6 +85,17 @@ def exit_arsenal():
     print("\nThanks for using Arsenal")
     sys.exit(0)
 
+def parse_command(text):
+    """
+    Parse the input from the console.
+    """
+    cmd = text.lower()
+
+    if cmd == 'exit':
+        exit_arsenal()
+
+    return text
+
 def main():
     """
     The main entry point of the program.
@@ -103,6 +114,7 @@ def main():
                 auto_suggest=AutoSuggestFromHistory()
             )
             if text:
+                cmd = parse_command(text)
                 firethread = FireThread(text, cli)
                 firethread.start()
                 firethread.join()
