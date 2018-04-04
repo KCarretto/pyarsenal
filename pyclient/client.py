@@ -68,11 +68,18 @@ from .auth import (
     create_api_key,
     create_user,
     get_user,
+    get_role,
+    get_current_context,
     add_role_member,
     remove_role_member,
     update_role_permissions,
     update_user_password,
-    get_current_context,
+    list_users,
+    list_api_keys,
+    list_roles,
+    delete_user,
+    delete_role,
+    revoke_api_key,
 )
 
 class ArsenalClient(object):
@@ -136,11 +143,18 @@ class ArsenalClient(object):
     create_api_key = create_api_key
     create_user = create_user
     get_user = get_user
+    get_role = get_role
+    get_current_context = get_current_context
     add_role_member = add_role_member
     remove_role_member = remove_role_member
     update_role_permissions = update_role_permissions
     update_user_password = update_user_password
-    get_current_context = get_current_context
+    list_users = list_users
+    list_roles = list_roles
+    list_api_keys = list_api_keys
+    delete_user = delete_user
+    delete_role = delete_role
+    revoke_api_key = revoke_api_key
 
     def __init__(self, **kwargs):
         """
