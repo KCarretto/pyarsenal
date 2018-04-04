@@ -106,6 +106,16 @@ def get_user(self, username, include_roles=False, include_api_calls=True):
 
     return User(resp['user'])
 
+def get_role(self, role_name):
+    """
+    Retrieve information about a role.
+    """
+    resp = self.call(
+        'GetRole',
+        role_name=role_name,
+    )
+    return Role(resp['role'])
+
 def get_current_context(self):
     """
     Retrieve the currently authenticated username.
@@ -114,3 +124,64 @@ def get_current_context(self):
         'GetCurrentContext'
     )
     return User(resp['user'])
+
+def list_users(self, include_roles=None, include_api_calls=None):
+    """
+    Return a list of users with information.
+    """
+    resp = self.call(
+        'ListUsers',
+        include_roles=include_roles,
+        include_api_calls=include_api_calls,
+    )
+    return [User(user) for user in resp['users']]
+
+def list_api_keys(self, user_context=None):
+    """
+    Return a list of API keys registered for a user.
+    """
+    resp = self.call(
+        'ListAPIKeys',
+        user_context=user_context
+    )
+    return [APIKey(key) for key in resp['api_keys']]
+
+def list_roles(self):
+    """
+    Return a list of roles.
+    """
+    resp = self.call(
+        'ListRoles',
+    )
+
+    return [Role(role) for role in resp['roles']]
+
+def delete_user(self, username):
+    """
+    Remove a user.
+    """
+    self.call(
+        'DeleteUser',
+        username=username
+    )
+    return True
+
+def delete_role(self, role_name):
+    """
+    Delete a role.
+    """
+    self.call(
+        'DeleteRole',
+        role_name=role_name
+    )
+    return True
+
+def revoke_api_key(self, api_key):
+    """
+    Revoke an API key.
+    """
+    self.call(
+        'RevokeAPIKey',
+        api_key=api_key
+    )
+    return True

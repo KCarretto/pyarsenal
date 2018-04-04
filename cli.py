@@ -342,7 +342,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         sessions = self.client.list_sessions()
         if sessions:
-            self._output(self._bright('\n{0:<40}{1:<20}{2:<40}').format('Target', 'Status', 'Session'))
+            self._output(self._bright('\n{0:<40}{1:<20}{2:<40}').format(
+                'Target', 'Status', 'Session'))
             for session in sorted(sessions, key=lambda x: x.raw_json.get(sortby, 0)):
                 self._output('{0:<50}{1:<30}{2:<50}'.format(
                     self._id(session.target_name),
