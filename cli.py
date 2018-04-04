@@ -361,7 +361,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
         Args:
             name: The name of the Target to search for.
-            showfacts: Set True to display all facts
+            show-facts: Set True to display all facts
         """
         target = self.client.get_target(
             name,
@@ -664,15 +664,35 @@ class CLI(object): #pylint: disable=too-many-public-methods
         of allowed api calls for it. By default, the API key will assume all permissions of the
         current user.
 
+        Args:
+            allowed_api_calls:  A list of allowed API calls
+                                defaults to all calls accessible by the user.
+                                i.e. CreateAPIKey "['GetCurrentContext', 'ListTargets']"
+
         Administrators may specify another user to create a key for using 'user_context'.
         """
         key = self.client.create_api_key(allowed_api_calls, user_context)
 
         self._output(self._pair(self._green('Successfully generated API Key'), key, self._yellow))
 
+    def CreateRole(self, role_name, allowed_api_calls, users):  #pylint: disable=invalid-name
+        """
+        Create a role with the given permissions and users.
+
+        Args:
+            role_name: The name of the role.
+            allowed_api_calls: A list of methods that users in the role will be able to call.
+            users: A list of users to add to the role.
+        """
+        self.client.create_role(role_name, allowed_api_calls, users)
+        self._output(self._green('Successfully created role.'))
+
     def GetUser(self, username): #pylint: disable=invalid-name
         """
         Fetch information about a user from the teamserver.
+
+        Args:
+            username: The user to retrieve from the teamserver.
         """
         user = self.client.get_user(username, True, True)
 
@@ -684,6 +704,23 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output('\nAllowed API Methods:')
         for method in user.allowed_api_calls:
             self._output('\t{}'.format(method))
+
+    def GetRole(self, role_name):  #pylint: disable=invalid-name
+        """
+        Fetch a role from the teamserver.
+
+        Args:
+            role_name: The name of the role to retrieve information on.
+        """
+        role = self.client.get_role(role_name)
+        desc = role.description if role.description else 'None'
+        methods = '\n\t'.join(role.allowed_api_calls) if role.allowed_api_calls else 'None'
+        users = '\n\t'.join(role.users if role.users else 'None')
+
+        self._output(self._pair('\nName', role.name, self._id))
+        self._output(self._pair('Description', desc))
+        self._output(self._pair('Allowed API Calls\n\t', methods))
+        self._output(self._pair('Users\n', users, self._id))
 
     def GetCurrentContext(self): #pylint: disable=invalid-name
         """
@@ -754,6 +791,60 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.add_role_member(role_name, username)
 
         self._output(self._green('Successfully added user to role.'))
+
+    def RemoveRoleMember(self, role_name, username):  #pylint: disable=invalid-name
+        """
+        Remove the user from the given role.
+
+        Args:
+            role_name: The name of the role to modify.
+            username: The name of the user to remove.
+        """
+        self.client.remove_role_member(role_name, username)
+
+        self._output(self._green('Successfully removed user from role.'))
+
+    def ListUsers(self): #pylint: disable=invalid-name
+        """
+        List all users and describe what roles they are in.
+        """
+        users = self.client.list_users(True, False)
+
+        self._output(self._bright('\n{:<40}{:<40}').format(
+            'User',
+            'Roles',
+        ))
+        for user in users:
+            roles = user.roles
+            self._output('{:<50}{:<50}'.format(
+                self._id(user.username),
+                self._yellow(', '.join([role['name'] for role in roles] if roles else ['None'])),
+            ))
+
+    def ListRoles(self):  #pylint: disable=invalid-name
+        """
+        List all roles.
+        """
+        roles = self.client.list_roles()
+        self._output(self._bright('\nRoles:'))
+        for role in roles:
+            self._output(
+                self._id(role.name))
+
+    def ListAPIKeys(self, user_context=None): #pylint: disable=invalid-name
+        """
+        List all api keys for the current user.
+
+        Administrators may specify another user to list keys for using 'user_context'.
+        """
+        keys = self.client.list_api_keys(user_context)
+
+
+        self._output(self._bright(''))
+        for key in keys:
+            allowed_api_calls = (
+                ','.join(key.allowed_api_calls) if key.allowed_api_calls else 'None')
+            self._output(self._pair(key.owner, allowed_api_calls))
 
 def main():
     """
