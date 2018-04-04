@@ -299,13 +299,13 @@ class CLI(object): #pylint: disable=too-many-public-methods
         actions = self.client.list_actions()
 
         if actions:
-            self._output('{0:<37} {1:<20} {2:<30} {3:<30}'.format(
+            self._output(self._bright('\n{0:<40}{1:<20}{2:<40}{3:<40}').format(
                 'Target',
                 'Status',
                 'Action ID',
                 'Action String'))
             for action in actions:
-                self._output('{0:<37} {1:<20} {2:>30} {3:<30}'.format(
+                self._output('{0:<50}{1:<30}{2:<50}{3:50}'.format(
                     self._id(action.target_name),
                     self._format_action_status(action.status),
                     self._id(action.action_id),
@@ -342,9 +342,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         sessions = self.client.list_sessions()
         if sessions:
-            self._output('{0:<37} {1:<10} {2:<40}'.format('Target', 'Status', 'Session'))
+            self._output(self._bright('\n{0:<40}{1:<20}{2:<40}').format('Target', 'Status', 'Session'))
             for session in sorted(sessions, key=lambda x: x.raw_json.get(sortby, 0)):
-                self._output('{0:<37} {1:<10} {2:<40}'.format(
+                self._output('{0:<50}{1:<30}{2:<50}'.format(
                     self._id(session.target_name),
                     self._format_session_status(session.status),
                     self._id(session.session_id),
@@ -441,13 +441,13 @@ class CLI(object): #pylint: disable=too-many-public-methods
             include_groups=True,
             include_credentials=False)
         if targets:
-            self._output('{0:<20} {1:<37} {2:<40}'.format(
+            self._output(self._bright('\n{0:<20}{1:<40}{2:<40}').format(
                 'Status',
                 'Name',
                 'Groups'))
             for target in sorted(targets, key=lambda x: x.name):
                 groups = [group['name'] for group in target.groups]
-                self._output('{0:<20} {1:<37} {2:<40}'.format(
+                self._output('{0:<30}{1:<50}{2:<50}'.format(
                     self._format_session_status(target.status),
                     self._id(target.name),
                     self._green(', '.join(groups) if groups else 'None')
@@ -603,9 +603,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         group_actions = self.client.list_group_actions()
         if group_actions:
-            self._output(self._bright('\n{0:<20} {1:<30} {2:<40}'.format('Status', 'ID', 'Action')))
+            self._output(self._bright('\n{0:<20}{1:<40}{2:<40}').format('Status', 'ID', 'Action'))
             for group_action in group_actions:
-                self._output('{0:<20} {1:<30} {2:<40}'.format(
+                self._output('{0:<30}{1:<50}{2:<50}'.format(
                     self._format_group_action_status(group_action.status),
                     self._id(group_action.group_action_id),
                     self._yellow(group_action.action_string)))
