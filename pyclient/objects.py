@@ -109,6 +109,8 @@ class APIKey(ArsenalObject): # pylint: disable=too-few-public-methods
     This object represents an API Key from the teamserver.
     """
     key = None
+    owner = None
+    allowed_api_calls = None
 
 class User(ArsenalObject): # pylint: disable=too-few-public-methods
     """
@@ -117,3 +119,26 @@ class User(ArsenalObject): # pylint: disable=too-few-public-methods
     username = None
     allowed_api_calls = None
     roles = None
+
+##
+# Webhooks
+##
+class Webhook(ArsenalObject): # pylint: disable=too-few-public-methods
+    """
+    This object represents a Webhook from the teamserver.
+    """
+    hook_id = None
+    owner = None
+    post_url = None
+    triggers = None
+
+##
+# Agents
+##
+class Agent(ArsenalObject): # pylint: disable=too-few-public-methods
+    """
+    This object represents an Agent from the teamserver.
+    """
+    agent_version = None
+    supported_actions = None
+    default_config = None
