@@ -878,6 +878,53 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.revoke_api_key(api_key, user_context)
         self._output(self._green('Successfully revoked API key'))
 
+    ###############################################################################################
+    #                                 Agent Methods                                               #
+    ###############################################################################################
+    def RegisterAgent(self, agent_version, supported_actions): #pylint: disable=invalid-name
+        """
+        Register an agent version with the teamserver. This prevents sessions from receiving
+        unsupported action types. This will update and override existing agents.
+
+        Args:
+            agent_version: The agent_version string that the agent will supply to the teamserver.
+            supported_actions: A list of supported action types for this agent.
+
+        i.e. RegisterAgent myagent "[0, 1, 3, 6]"
+        """
+        self.client.register_agent(agent_version, supported_actions)
+        self._output(self._green('Successfully registered agent.'))
+
+    def GetAgent(self, agent_version): #pylint: disable=invalid-name
+        """
+        Fetch information about an agent.
+
+        Args:
+            agent_version: The agent version string to search for.
+        """
+        agent = self.client.get_agent(agent_version)
+        self._output(self._pair('\nAgent Version', agent.agent_version, self._id))
+        self._output(self._pair('\nSupported Actions', str(agent.supported_actions)))
+
+    def ListAgents(self): #pylint: disable=invalid-name
+        """
+        List all registered agents.
+        """
+        agents = self.client.list_agents()
+        self._output('\nAgents:')
+        for agent in agents:
+            self._output(self._id(agent.agent_version))
+
+    def UnregisterAgent(self, agent_version): #pylint: disable=invalid-name
+        """
+        Unregister an agent.
+
+        Args:
+            agent_version: The agent_version string to unregister.
+        """
+        self.client.unregister_agent(agent_version)
+        self._output(self._green('Agent was successfuly unregistered.'))
+
 def main():
     """
     A main entry point for executing this file as a script.

@@ -82,6 +82,13 @@ from .auth import (
     revoke_api_key,
 )
 
+from .agent import(
+    register_agent,
+    get_agent,
+    list_agents,
+    unregister_agent,
+)
+
 class ArsenalClient(object):
     """
     This object is used to invoke API functions.
@@ -155,6 +162,12 @@ class ArsenalClient(object):
     delete_user = delete_user
     delete_role = delete_role
     revoke_api_key = revoke_api_key
+
+    # Agent API
+    register_agent = register_agent
+    get_agent = get_agent
+    list_agents = list_agents
+    unregister_agent = unregister_agent
 
     def __init__(self, **kwargs):
         """
