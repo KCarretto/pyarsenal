@@ -18,6 +18,11 @@ from cli import CLI
 from pyclient import API_KEY_FILE
 from pyclient.exceptions import handle_exceptions, PermissionDenied
 
+class Reset(Exception):
+    """
+    Raised when the user wishes to reinitialize the terminal.
+    """
+
 class ArsenalCompleter(Completer): # pylint: disable-all
     """
     A completer specific to the Arsenal API.
@@ -65,6 +70,9 @@ class ArsenalCompleter(Completer): # pylint: disable-all
             ],
             'GetUser': [
                 WordCompleter(self.user_names)
+            ],
+            'GetRole': [
+                WordCompleter(self.role_names)
             ]
         }
 
@@ -128,7 +136,8 @@ def parse_command(text):
 
     if cmd == 'exit':
         exit_arsenal()
-
+    if cmd == 'reset':
+        raise Reset()
     return text
 
 def build_autocomplete(client):
@@ -152,6 +161,9 @@ def build_autocomplete(client):
             return method()
         except PermissionDenied:
             return []
+        except Exception as exception:
+            print(type(exception))
+            print(exception)
     resp['target_names'] = [
         target.name for target in safe_discover(client.list_targets, include_status=False)]
     resp['group_names'] = [
@@ -190,7 +202,9 @@ def main():
                 firethread.start()
                 firethread.join()
                 print('')
-
+        except Reset:
+            cli.client.context = cli.client.get_current_context()
+            autocomplete = build_autocomplete(cli.client)
         except EOFError:
             exit_arsenal()
         except KeyboardInterrupt:
