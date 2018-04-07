@@ -16,16 +16,19 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from cli import CLI
 from pyclient import API_KEY_FILE
-from pyclient.exceptions import handle_exceptions
+from pyclient.exceptions import handle_exceptions, PermissionDenied
 
-class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
+class ArsenalCompleter(Completer): # pylint: disable-all
     """
     A completer specific to the Arsenal API.
     """
     _api_methods = {}
-    _api_completers = {}
-    _names = []
-    def __init__(self, methods, target_names, group_names):
+    target_names = []
+    group_names = []
+    role_names = []
+    agent_names = []
+    user_names = []
+    def __init__(self, methods, autocomplete):
         """
         Constructor for the completer, used to gather API information.
         """
@@ -33,8 +36,11 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
         if '*' in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith('_'), dir(CLI)))
 
-        self.target_names = target_names
-        self.group_names = group_names
+        self.target_names = autocomplete.get('target_names', [])
+        self.group_names = autocomplete.get('group_names', [])
+        self.role_names = autocomplete.get('role_names', [])
+        self.agent_names = autocomplete.get('agent_names', [])
+        self.user_names = autocomplete.get('user_names', [])
 
         self.auto_completers = {
             'GetTarget': [
@@ -49,6 +55,15 @@ class ArsenalCompleter(Completer): # pylint: disable=too-few-public-methods
             'CreateGroupAction': [
                 WordCompleter(self.group_names)
             ],
+            'AddRoleMember': [
+                WordCompleter(self.role_names)
+            ],
+            'RemoveRoleMember': [
+                WordCompleter(self.role_names)
+            ],
+            'GetUser': [
+                WordCompleter(self.user_names)
+            ]
         }
 
         self.api_completer = WordCompleter(self._api_methods, True)
@@ -114,20 +129,55 @@ def parse_command(text):
 
     return text
 
+def build_autocomplete(client):
+    """
+    Return a dictionary for autocompletion.
+    """
+    resp = {
+        'target_names': [],
+        'group_names': [],
+        'role_names': [],
+        'agent_versions': [],
+    }
+    def safe_discover(method, **kwargs):
+        """
+        Attempt to fetch autocomplete information, but return [] if permission is denied.
+        """
+        try:
+            if kwargs.keys():
+                return method(**kwargs)
+            return method()
+        except PermissionDenied:
+            return []
+    resp['target_names'] = [
+        target.name for target in safe_discover(client.list_targets, include_status=False)]
+    resp['group_names'] = [
+        group.name for group in safe_discover(client.list_groups)]
+    resp['role_names'] = [
+        role.name for role in safe_discover(client.list_roles)]
+    resp['agent_names'] = [
+        agent.name for agent in safe_discover(client.list_agents)]
+    resp['user_names'] = [
+        user.username for user in safe_discover(client.list_users)]
+
+    return resp
+
 def main():
     """
     The main entry point of the program.
     """
     cli = CLI(api_key_file=API_KEY_FILE)
     history = InMemoryHistory()
+
+    # Build Autocomplete
     methods = cli.client.context.allowed_api_calls
-    target_names = [target.name for target in cli.client.list_targets(include_status=False)]
-    group_names = [group.name for group in cli.client.list_groups()]
+    autocomplete = build_autocomplete(cli.client)
+
     while True:
         try:
             text = prompt(
                 'Arsenal >> ',
-                completer=ArsenalCompleter(methods, target_names, group_names),
+                completer=ArsenalCompleter(methods, autocomplete),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory()
             )

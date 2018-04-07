@@ -925,6 +925,45 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.unregister_agent(agent_version)
         self._output(self._green('Agent was successfuly unregistered.'))
 
+    ###############################################################################################
+    #                               Webhook Methods                                               #
+    ###############################################################################################
+    def RegisterWebhook(self, post_url, event_triggers): #pylint: disable=invalid-name
+        """
+        Hook an API call or other event, and receive information from the event.
+        Useful for developing integrations.
+
+        Args:
+            post_url: The URL that data should be sent via an HTTP POST request.
+            event_triggers: A list of events to subscribe to.
+        """
+        self.client.register_webhook(post_url, event_triggers)
+        self._output(self._green('Successfully registered webhook.'))
+
+    def UnregisterWebhook(self, hook_id): #pylint: disable=invalid-name
+        """
+        Unregister a webhook owned by the current user.
+
+        Args:
+            hook_id: The id of the hook to unregister. Must be owned by the current user.
+        """
+        self.client.unregister_webhook(hook_id)
+        self._output(self._green('Successfully unregistered webhook.'))
+
+    def ListWebhooks(self, user_context=None): #pylint: disable=invalid-name
+        """
+        Return a list of the current users webhooks.
+
+        Administrators may specify an administrative user context.
+        """
+        webhooks = self.client.list_webhooks(user_context)
+        self._output('\nWebhooks:')
+        for hook in webhooks:
+            self._output(self._pair('\nHook ID', hook.hook_id, self._id))
+            self._output(self._pair('Owner', hook.owner))
+            self._output(self._pair('Post URL', hook.post_url))
+            self._output(self._pair('Triggers', ', '.join(hook.triggers)))
+
 def main():
     """
     A main entry point for executing this file as a script.

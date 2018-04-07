@@ -89,6 +89,12 @@ from .agent import(
     unregister_agent,
 )
 
+from .webhook import(
+    register_webhook,
+    unregister_webhook,
+    list_webhooks,
+)
+
 class ArsenalClient(object):
     """
     This object is used to invoke API functions.
@@ -168,6 +174,11 @@ class ArsenalClient(object):
     get_agent = get_agent
     list_agents = list_agents
     unregister_agent = unregister_agent
+
+    # Webhook API
+    register_webhook = register_webhook
+    unregister_webhook = unregister_webhook
+    list_webhooks = list_webhooks
 
     def __init__(self, **kwargs):
         """
