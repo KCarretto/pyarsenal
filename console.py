@@ -56,10 +56,12 @@ class ArsenalCompleter(Completer): # pylint: disable-all
                 WordCompleter(self.group_names)
             ],
             'AddRoleMember': [
-                WordCompleter(self.role_names)
+                WordCompleter(self.role_names),
+                WordCompleter(self.user_names),
             ],
             'RemoveRoleMember': [
-                WordCompleter(self.role_names)
+                WordCompleter(self.role_names),
+                WordCompleter(self.user_names),
             ],
             'GetUser': [
                 WordCompleter(self.user_names)
@@ -138,6 +140,7 @@ def build_autocomplete(client):
         'group_names': [],
         'role_names': [],
         'agent_versions': [],
+        'user_names': [],
     }
     def safe_discover(method, **kwargs):
         """
