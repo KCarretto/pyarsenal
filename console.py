@@ -204,6 +204,7 @@ def main():
                 print('')
         except Reset:
             cli.client.context = cli.client.get_current_context()
+            methods = cli.client.context.allowed_api_calls
             autocomplete = build_autocomplete(cli.client)
         except EOFError:
             exit_arsenal()
