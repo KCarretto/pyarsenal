@@ -24,15 +24,16 @@ def list_logs(
         self,
         application=None,
         since=None,
-        include_archived=None):
+        include_archived=None,
+        levels=None):
     """
     List logs from the teamserver, optionally filtering.
     """
-    resp = self._list_logs_raw(application, since, include_archived) # pylint: disable=protected-access
+    resp = self._list_logs_raw(application, since, include_archived, levels) # pylint: disable=protected-access
 
     return [Log(log_data) for log_data in resp['logs']]
 
-def _list_logs_raw(self, application, since, include_archived):
+def _list_logs_raw(self, application, since, include_archived, levels):
     """
     Returns the raw response of the ListLogs API call.
     """
@@ -40,5 +41,6 @@ def _list_logs_raw(self, application, since, include_archived):
         'ListLogs',
         application=application,
         since=since,
-        include_archived=include_archived
+        include_archived=include_archived,
+        levels=levels,
     )

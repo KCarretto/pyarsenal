@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """
 This module includes a class that contains all API functions,
 and may be called from the command line.
@@ -471,7 +472,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         else:
             self._output(self._red('No Targets were found.'))
 
-    def MigrateTarget(self, old_target, new_target):
+    def MigrateTarget(self, old_target, new_target): # pylint: disable=invalid-name
         """
         Migrate a target. This action should only be performed if the UUID of a target changes.
         Please use the RenameTarget api method to rename an existing target.
@@ -643,7 +644,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                 Log Methods                                                 #
     ###############################################################################################
-    def ListLogs(self, application=None, since=None, include_archived=None):  #pylint: disable=invalid-name
+    def ListLogs(self, application=None, since=None, include_archived=None, levels=None):  #pylint: disable=invalid-name
         """
         This lists logs from the teamserver, and may be optionally filtered.
 
@@ -651,8 +652,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
             application(optional): The Application to filter for.
             since(optional): All logs returned will have a timestamp greater than this.
             include_archived(optional): Should archived logs be included in the search.
+            levels(optional): A list of log levels to include
         """
-        logs = self.client.list_logs(application, since, include_archived)
+        logs = self.client.list_logs(application, since, include_archived, levels)
         for log in logs:
             timestamp = datetime.fromtimestamp(log.timestamp).strftime('%Y-%m-%d %H:%M:%S')
             self._output('[{}][{}]\t[{}]\t{}'.format(
