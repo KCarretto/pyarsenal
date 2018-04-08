@@ -40,6 +40,8 @@ class Action(ArsenalObject): # pylint: disable=too-few-public-methods
 
     response = None
 
+    owner = None
+
 class Group(ArsenalObject): # pylint: disable=too-few-public-methods
     """
     This object represents a Group from the teamserver.
@@ -57,6 +59,7 @@ class GroupAction(ArsenalObject): # pylint: disable=too-few-public-methods
     status = None
     action_ids = None
     actions = None
+    owner = None
 
 class Log(ArsenalObject): # pylint: disable=too-few-public-methods
     """

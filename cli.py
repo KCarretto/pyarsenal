@@ -261,6 +261,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
         self._output(self._green('\nAction Found:\n'))
         self._output(self._pair('\taction_id', action.action_id, self._id))
+        self._output(self._pair('\towner', action.owner))
         self._output(self._pair('\ttarget', action.target_name, self._id))
         self._output(self._pair('\tstatus', action.status, self._format_action_status))
         self._output(self._pair('\taction', action.action_string, self._yellow))
@@ -601,6 +602,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
             '\t{}'.format(group_action.group_action_id),
             group_action.action_string,
             self._yellow)))
+        self._output(self._pair('\towner', group_action.owner))
         self._output(self._pair('\tstatus', group_action.status, self._format_group_action_status))
 
         if group_action.actions:
