@@ -42,20 +42,24 @@ def cancel_action(self, action_id):
 
     return True
 
-def list_actions(self):
+def list_actions(self, **kwargs):
     """
     Returns a list of Action Objects from the teamserver.
     """
-    resp = _list_actions_raw(self)
+    resp = _list_actions_raw(self, **kwargs)
 
     return [Action(action) for action_id, action in resp['actions'].items()]
 
-def _list_actions_raw(self):
+def _list_actions_raw(self, **kwargs):
     """
     Returns the raw response of the ListActions API call.
     """
     return self.call(
-        'ListActions'
+        'ListActions',
+        owner=kwargs.get('owner'),
+        target_name=kwargs.get('target_name'),
+        limit=kwargs.get('limit'),
+        offset=kwargs.get('offset'),
     )
 
 def duplicate_action(self, action_id):

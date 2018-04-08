@@ -291,14 +291,18 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output(
                 self._red('Could not cancel Action `{}`.'.format(self._id(action_id))))
 
-    def ListActions(self): #pylint: disable=invalid-name
+    def ListActions(self, owner=None, target_name=None, limit=None, offset=None): #pylint: disable=invalid-name
         """
         This lists all Actions that are currently tracked by the teamserver.
 
         Args:
             None
         """
-        actions = self.client.list_actions()
+        actions = self.client.list_actions(
+            owner=owner,
+            target_name=target_name,
+            limit=limit,
+            offset=offset)
 
         if actions:
             self._output(self._bright('\n{0:<40}{1:<20}{2:<40}{3:<40}').format(
@@ -408,10 +412,10 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
             if not hide_actions:
                 if target.actions:
-                    self._output('\n\nActions:')
+                    self._output('\n\nRecent Actions:')
 
                     actions = sorted(
-                        target.actions,
+                        target.actions[:5],
                         key=lambda x: x.get('queue_time', 0),
                         reverse=True)
 
