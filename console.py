@@ -60,6 +60,24 @@ class ArsenalCompleter(Completer): # pylint: disable-all
             'CreateGroupAction': [
                 WordCompleter(self.group_names)
             ],
+            'AddGroupRule': [
+                WordCompleter(self.group_names)
+            ],
+            'RemoveGroupRule': [
+                WordCompleter(self.group_names)
+            ],
+            'AddGroupMember': [
+                WordCompleter(self.group_names),
+                WordCompleter(self.target_names),
+            ],
+            'RemoveGroupMember': [
+                WordCompleter(self.group_names),
+                WordCompleter(self.target_names),
+            ],
+            'BlacklistGroupMember': [
+                WordCompleter(self.group_names),
+                WordCompleter(self.target_names)
+            ],
             'AddRoleMember': [
                 WordCompleter(self.role_names),
                 WordCompleter(self.user_names),

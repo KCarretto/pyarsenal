@@ -28,6 +28,9 @@ from .group import (
     list_groups,
     _get_group_raw,
     _list_groups_raw,
+    add_group_rule,
+    remove_group_rule,
+    rebuild_group_members,
 )
 from .group_action import (
     create_group_action,
@@ -122,6 +125,9 @@ class ArsenalClient(object):
     list_groups = list_groups
     _get_group_raw = _get_group_raw
     _list_groups_raw = _list_groups_raw
+    add_group_rule = add_group_rule
+    remove_group_rule = remove_group_rule
+    rebuild_group_members = rebuild_group_members
 
     # GroupAction API
     create_group_action = create_group_action

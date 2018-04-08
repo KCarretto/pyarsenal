@@ -47,8 +47,10 @@ class Group(ArsenalObject): # pylint: disable=too-few-public-methods
     This object represents a Group from the teamserver.
     """
     name = None
+    members = None
     whitelist_members = None
     blacklist_members = None
+    rules = None
 
 class GroupAction(ArsenalObject): # pylint: disable=too-few-public-methods
     """

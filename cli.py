@@ -512,13 +512,30 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._pair('\tname', group.name, self._id))
         self._output(self._pair(
             '\tmembers',
-            ', '.join(group.whitelist_members) if group.whitelist_members else 'None'))
+            ', '.join(group.members) if group.members else 'None'))
 
         if group.blacklist_members:
             self._output(self._pair(
                 '\tblacklist',
                 ', '.join(group.blacklist_members),
                 self._red))
+
+        if group.rules:
+            self._output(self._key('\n\tAutomember Rules:'))
+            for rule in group.rules:
+                self._output(self._pair(
+                    '\t\trule_id',
+                    rule['rule_id'],
+                    self._id))
+                self._output(self._pair(
+                    '\t\tattribute',
+                    rule['attribute'],
+                    self._green))
+                self._output(self._pair(
+                    '\t\tregex',
+                    rule['regex'],
+                    self._yellow))
+                self._output('')
 
     def AddGroupMember(self, group_name, target_name): #pylint: disable=invalid-name
         """
@@ -578,6 +595,43 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         self.client.delete_group(name)
         self._output(self._green('Successfully deleted group.'))
+
+    def AddGroupRule(self, name, attribute, regex, rule_id=None): #pylint: disable=invalid-name
+        """
+        Add an automembership rule to the group.
+
+        Args:
+            name: The name of the group to modify.
+            attribute: The attribute to build membership based on. You may access fields using
+                the '.' operator, for example: 'facts.interfaces'. Each attribute is converted
+                into a str for regex matching.
+            regex: The inclusion regex, targets with matching attributes are included as group
+                members.
+            rule_id: Optionally specify a unique name for the rule.
+        """
+        self.client.add_group_rule(name, attribute, regex, rule_id)
+        self._output(self._green('Successfully added rule to group and rebuilt group members.'))
+
+    def RemoveGroupRule(self, name, rule_id): #pylint: disable=invalid-name
+        """
+        Remove an automembership rule for the group.
+
+        Args:
+            name: The name of the group to modify.
+            rule_id: The unique identifier of the rule to remove.
+        """
+        self.client.remove_group_rule(name, rule_id)
+        self._output(self._green('Successfully remove group rule and rebuilt group members.'))
+
+    def RebuildGroupMembers(self, name=None): #pylint: disable=invalid-name
+        """
+        Recalculate group members.
+
+        Args:
+            name (optional): Optionally specify a single group to rebuild membership for.
+        """
+        self.client.rebuild_group_members(name)
+        self._output(self._green('Successfully rebuilt group members.'))
 
     ###############################################################################################
     #                             Group Action Methods                                            #

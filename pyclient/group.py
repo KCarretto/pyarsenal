@@ -94,3 +94,34 @@ def _list_groups_raw(self):
     return self.call(
         'ListGroups'
     )
+
+def add_group_rule(self, name, attribute, regex, rule_id=None):
+    """
+    Add an automember rule to the group.
+    """
+    return self.call(
+        'AddGroupRule',
+        name=name,
+        attribute=attribute,
+        regex=regex,
+        rule_id=rule_id,
+    )
+
+def remove_group_rule(self, name, rule_id):
+    """
+    Remove an automember rule from the group.
+    """
+    return self.call(
+        'RemoveGroupRule',
+        name=name,
+        rule_id=rule_id
+    )
+
+def rebuild_group_members(self, name=None):
+    """
+    Recalculate group members. Optionally specify a particular group.
+    """
+    return self.call(
+        'RebuildGroupMembers',
+        name=name
+    )
