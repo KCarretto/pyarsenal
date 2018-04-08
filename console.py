@@ -73,6 +73,9 @@ class ArsenalCompleter(Completer): # pylint: disable-all
             ],
             'GetRole': [
                 WordCompleter(self.role_names)
+            ],
+            'RenameTarget': [
+                WordCompleter(self.target_names)
             ]
         }
 
