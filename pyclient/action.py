@@ -57,3 +57,13 @@ def _list_actions_raw(self):
     return self.call(
         'ListActions'
     )
+
+def duplicate_action(self, action_id):
+    """
+    Duplicate an action.
+    """
+    resp = self.call(
+        'DuplicateAction',
+        action_id=action_id
+    )
+    return resp['action_id']

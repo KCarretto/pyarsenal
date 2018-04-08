@@ -314,6 +314,17 @@ class CLI(object): #pylint: disable=too-many-public-methods
         else:
             self._output(self._red('No Actions were found.'))
 
+    def DuplicateAction(self, action_id): #pylint: disable=invalid-name
+        """
+        This duplicates a previously queued action.
+
+        Args:
+            action_id: The unique identifier of the action to duplicate.
+        """
+        new_action_id = self.client.duplicate_action(action_id)
+        self._output('Action duplicated. \
+        You can track it\'s progress using this action_id: `{}`'.format(self._id(new_action_id)))
+
     ###############################################################################################
     #                              Session Methods                                                #
     ###############################################################################################

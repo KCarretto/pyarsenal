@@ -16,6 +16,7 @@ from .action import (
     list_actions,
     _get_action_raw,
     _list_actions_raw,
+    duplicate_action,
 )
 from .group import (
     create_group,
@@ -109,6 +110,7 @@ class ArsenalClient(object):
     list_actions = list_actions
     _get_action_raw = _get_action_raw
     _list_actions_raw = _list_actions_raw
+    duplicate_action = duplicate_action
 
     # Group API
     create_group = create_group
