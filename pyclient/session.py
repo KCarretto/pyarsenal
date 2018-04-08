@@ -5,7 +5,7 @@ from .objects import Action, Session
 
 def create_session( #pylint: disable=too-many-arguments
         self,
-        mac_addrs,
+        target_uuid,
         servers=None,
         interval=None,
         interval_delta=None,
@@ -16,7 +16,7 @@ def create_session( #pylint: disable=too-many-arguments
     """
     resp = self.call(
         'CreateSession',
-        mac_addrs=mac_addrs,
+        target_uuid=target_uuid,
         servers=servers,
         interval=interval,
         interval_delta=interval_delta,

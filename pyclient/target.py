@@ -6,7 +6,7 @@ from .objects import Target
 def create_target(
         self,
         name,
-        mac_addrs,
+        uuid,
         facts):
     """
     This method creates a Target on the teamserver.
@@ -14,7 +14,7 @@ def create_target(
     self.call(
         'CreateTarget',
         name=name,
-        mac_addrs=mac_addrs,
+        uuid=uuid,
         facts=facts,
     )
 
