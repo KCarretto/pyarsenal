@@ -355,13 +355,14 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                               Target Methods                                                #
     ###############################################################################################
-    def GetTarget(self, name, show_facts=False, hide_actions=False): #pylint: disable=invalid-name
+    def GetTarget(self, name, show_facts=False, hide_actions=False, show_uuid=False): #pylint: disable=invalid-name
         """
         Fetch information about a Target.
 
         Args:
             name: The name of the Target to search for.
             show-facts: Set True to display all facts
+            show-uuid: Set True to display target UUID
         """
         target = self.client.get_target(
             name,
@@ -375,6 +376,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
             groups = [group.get('name') for group in target.groups]
             self._output(self._green('\nTarget Found:\n'))
             self._output(self._pair('\tname', target.name, self._id))
+            if show_uuid:
+                self._output(self._pair('\tuuid', target.uuid, self._id))
             self._output(self._pair('\tstatus', target.status, self._format_session_status))
             self._output(self._pair('\tlast seen', lastseen, self._yellow))
             self._output(self._pair('\tgroups', ', '.join(groups), self._id))
