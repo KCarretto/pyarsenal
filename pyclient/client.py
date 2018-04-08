@@ -61,6 +61,7 @@ from .target import (
     list_targets,
     _get_target_raw,
     _list_targets_raw,
+    migrate_target
 )
 
 from .auth import (
@@ -150,6 +151,7 @@ class ArsenalClient(object):
     list_targets = list_targets
     _get_target_raw = _get_target_raw
     _list_targets_raw = _list_targets_raw
+    migrate_target = migrate_target
 
     # Auth API
     create_role = create_role

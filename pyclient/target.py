@@ -87,3 +87,13 @@ def _list_targets_raw(self, params):
         include_groups=params.get('include_groups', False),
         include_credentials=params.get('include_credentials', False),
     )
+
+def migrate_target(self, old_target, new_target):
+    """
+    Invoke the MigrateTarget API method.
+    """
+    return self.call(
+        'MigrateTarget',
+        old_target=old_target,
+        new_target=new_target
+    )

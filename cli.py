@@ -456,6 +456,18 @@ class CLI(object): #pylint: disable=too-many-public-methods
         else:
             self._output(self._red('No Targets were found.'))
 
+    def MigrateTarget(self, old_target, new_target):
+        """
+        Migrate a target. This action should only be performed if the UUID of a target changes.
+        Please use the RenameTarget api method to rename an existing target.
+
+        Args:
+            old_target: The name of the existing target, with the outdated uuid.
+            new_target: The name of the newly created target, likely an auto generated name.
+        """
+        self.client.migrate_target(old_target, new_target)
+        self._output(self._green('Successfully migrated target.'))
+
     ###############################################################################################
     #                                   Group Methods                                             #
     ###############################################################################################
