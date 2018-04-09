@@ -3,7 +3,7 @@ This module contains Action API functions.
 """
 from .objects import Action
 
-def create_action(self, target_name, action_string, bound_session_id=None):
+def create_action(self, target_name, action_string, bound_session_id=None, action_id=None):
     """
     This method creates an Action, and returns it's action_id.
     """
@@ -11,7 +11,8 @@ def create_action(self, target_name, action_string, bound_session_id=None):
         'CreateAction',
         target_name=target_name,
         action_string=action_string,
-        bound_session_id=bound_session_id)
+        bound_session_id=bound_session_id,
+        action_id=action_id)
 
     return resp['action_id']
 

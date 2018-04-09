@@ -3,14 +3,15 @@ This module contains GroupAction API functions.
 """
 from .objects import Action, GroupAction
 
-def create_group_action(self, group_name, action_string):
+def create_group_action(self, group_name, action_string, group_action_id=None):
     """
     This method creates an GroupAction, and returns it's group_action_id.
     """
     resp = self.call(
         'CreateGroupAction',
         group_name=group_name,
-        action_string=action_string
+        action_string=action_string,
+        group_action_id=group_action_id,
     )
 
     return resp['group_action_id']
