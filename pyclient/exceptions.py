@@ -102,6 +102,12 @@ class InvalidCredentials(APIException):
     """
     name = 'invalid-credentials'
 
+class InvalidAPIKey(APIException):
+    """
+    Raised when an invalid api key was sent.
+    """
+    name = 'invalid-api-key'
+
 class PermissionDenied(APIException):
     """
     Raised when the user does not have permission to execute a function.
@@ -129,6 +135,7 @@ def parse_error(data):
 
         InvaidUser.name: InvaidUser,
         InvalidCredentials.name: InvalidCredentials,
+        InvalidAPIKey.name: InvalidAPIKey,
         PermissionDenied.name: PermissionDenied,
     }
     error_type = data.get('error_type', APIException.name)
@@ -189,6 +196,8 @@ def handle_exceptions(func):
             print('Error: Invalid Credentials.')
         except PermissionDenied:
             print('Error: Permission denied.')
+        except InvalidAPIKey:
+            print('Error: Invalid API Key.')
 
         except ServerConnectionError:
             print("Error: Could not connect to teamserver.")
