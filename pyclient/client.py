@@ -197,6 +197,8 @@ class ArsenalClient(object):
         Set the 'api_key_file' to enable using an API key
         Set the 'username' and 'password' to use user authentication otherwise.
         """
+        self.teamserver_uri = kwargs.get('teamserver_uri', TEAMSERVER_URI)
+
         api_key_file = kwargs.get('api_key_file')
         username = kwargs.get('username')
         password = kwargs.get('password')
@@ -235,7 +237,7 @@ class ArsenalClient(object):
             params['login_username'] = self.login_username
             params['login_password'] = self.login_password
         try:
-            resp = requests.post(TEAMSERVER_URI, json=params).json()
+            resp = requests.post(self.teamserver_uri, json=params).json()
             if resp.get('error'):
                 parse_error(resp)
             return resp
