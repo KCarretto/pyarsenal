@@ -237,7 +237,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                              Action Methods                                                 #
     ###############################################################################################
-    def CreateAction(self, target_name, action_string, bound_session_id=None): #pylint: disable=invalid-name
+    def CreateAction(self, target_name, action_string, bound_session_id=None, action_id=None): #pylint: disable=invalid-name
         """
         This method creates an Action for the given Target.
 
@@ -247,7 +247,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
             bound_session_id(optional): This parameter can be used to ensure that only a specific
                                         session may retrieve the action.
         """
-        action_id = self.client.create_action(target_name, action_string, bound_session_id)
+        action_id = self.client.create_action(
+            target_name, action_string, bound_session_id, action_id)
         self._output('Action created. \
         You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
 
@@ -636,7 +637,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                             Group Action Methods                                            #
     ###############################################################################################
-    def CreateGroupAction(self, group_name, action_string): #pylint: disable=invalid-name
+    def CreateGroupAction(self, group_name, action_string, group_action_id=None): #pylint: disable=invalid-name
         """
         Queue an Action for a Group of Targets.
 
@@ -644,7 +645,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
             group_name: The name of the Group of Targets.
             action_string: The Arsenal-Syntax action string to executes.
         """
-        group_action_id = self.client.create_group_action(group_name, action_string)
+        group_action_id = self.client.create_group_action(
+            group_name, action_string, group_action_id)
         self._output('Action created. You can track it\'s progress using \
         this group_action_id: `{}`'.format(self._id(group_action_id)))
 
