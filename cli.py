@@ -678,8 +678,12 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._pair('\tstatus', group_action.status, self._format_group_action_status))
 
         if group_action.actions:
+            self._output(self._bright('\n{0:<20}{1:<40}{2:<40}').format(
+                'Status',
+                'Target',
+                'Action ID',))
             for action in group_action.actions:
-                self._output('[{}]\t{}\t{}'.format(
+                self._output('{0:<30}{1:<50}{2:<50}'.format(
                     self._format_action_status(action.status),
                     action.target_name,
                     action.action_id))
