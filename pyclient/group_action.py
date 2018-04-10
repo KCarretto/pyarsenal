@@ -3,7 +3,7 @@ This module contains GroupAction API functions.
 """
 from .objects import Action, GroupAction
 
-def create_group_action(self, group_name, action_string, group_action_id=None):
+def create_group_action(self, group_name, action_string, group_action_id=None, quick=False):
     """
     This method creates an GroupAction, and returns it's group_action_id.
     """
@@ -12,6 +12,7 @@ def create_group_action(self, group_name, action_string, group_action_id=None):
         group_name=group_name,
         action_string=action_string,
         group_action_id=group_action_id,
+        quick=quick,
     )
 
     return resp['group_action_id']

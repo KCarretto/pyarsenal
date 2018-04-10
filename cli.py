@@ -237,7 +237,13 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                              Action Methods                                                 #
     ###############################################################################################
-    def CreateAction(self, target_name, action_string, bound_session_id=None, action_id=None): #pylint: disable=invalid-name
+    def CreateAction(  #pylint: disable=invalid-name,too-many-arguments
+            self,
+            target_name,
+            action_string,
+            bound_session_id=None,
+            action_id=None,
+            quick=False):
         """
         This method creates an Action for the given Target.
 
@@ -246,9 +252,12 @@ class CLI(object): #pylint: disable=too-many-public-methods
             action_string: The Action to perform, which should conform to Arsenal Action Syntax.
             bound_session_id(optional): This parameter can be used to ensure that only a specific
                                         session may retrieve the action.
+            action_id (optional, unique): Specify a human readable action_id.
+            quick (optional): Only send to the target's fastest session. Default: False. <bool>
+                      Note: This overrides bound_session_id.
         """
         action_id = self.client.create_action(
-            target_name, action_string, bound_session_id, action_id)
+            target_name, action_string, bound_session_id, action_id, quick)
         self._output('Action created. \
         You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
 
@@ -492,7 +501,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                   Group Methods                                             #
     ###############################################################################################
-    def CreateGroup(self, name): #pylint: disable=invalid-name
+    def CreateGroup(self, name,): #pylint: disable=invalid-name
         """
         Create a Group of Targets.
 
@@ -637,16 +646,18 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                             Group Action Methods                                            #
     ###############################################################################################
-    def CreateGroupAction(self, group_name, action_string, group_action_id=None): #pylint: disable=invalid-name
+    def CreateGroupAction(self, group_name, action_string, group_action_id=None, quick=False): #pylint: disable=invalid-name
         """
         Queue an Action for a Group of Targets.
 
         Args:
             group_name: The name of the Group of Targets.
             action_string: The Arsenal-Syntax action string to executes.
+            group_action_id (optional, unique): Specify a human readable group_action_id. <str>
+            quick (optional): Only send to the target's fastest session. Default: False. <bool>
         """
         group_action_id = self.client.create_group_action(
-            group_name, action_string, group_action_id)
+            group_name, action_string, group_action_id, quick)
         self._output('Action created. You can track it\'s progress using \
         this group_action_id: `{}`'.format(self._id(group_action_id)))
 
@@ -704,6 +715,17 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                                 Log Methods                                                 #
     ###############################################################################################
+    def CreateLog(self, level, message): # pylint: disable=invalid-name
+        """
+        Log a message to the teamserver.
+
+        Args:
+            level: The level to log at ('DEBUG', 'INFO', 'WARN', 'CRIT', 'FATAL')
+            message: The message to log.
+        """
+        self.client.create_log('arsenal-pyclient', level, message)
+        self._output(self._green('Successfully added log entry'))
+
     def ListLogs(self, application=None, since=None, include_archived=None, levels=None):  #pylint: disable=invalid-name
         """
         This lists logs from the teamserver, and may be optionally filtered.
@@ -805,7 +827,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         role = self.client.get_role(role_name)
         desc = role.description if role.description else 'None'
         methods = '\n\t'.join(role.allowed_api_calls) if role.allowed_api_calls else 'None'
-        users = '\n\t'.join(role.users if role.users else 'None')
+        users = '\n\t'.join(role.users) if role.users else '\n\tNone'
 
         self._output(self._pair('\nName', role.name, self._id))
         self._output(self._pair('Description', desc))
