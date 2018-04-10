@@ -10,7 +10,8 @@ def create_session( #pylint: disable=too-many-arguments
         interval=None,
         interval_delta=None,
         config_dict=None,
-        facts=None):
+        facts=None,
+        agent_version=None):
     """
     This method creates an Session, and returns it's session_id.
     """
@@ -21,7 +22,9 @@ def create_session( #pylint: disable=too-many-arguments
         interval=interval,
         interval_delta=interval_delta,
         config_dict=config_dict,
-        facts=facts)
+        facts=facts,
+        agent_version=agent_version,
+    )
 
     return resp['session_id']
 
