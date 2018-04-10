@@ -110,15 +110,15 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
     def _pair(self, key, value, value_func=None):
         if not self._color:
-            return '{0:<25}: {1:<30}'.format(key, value)
+            return '{0:<35}: {1:<50}'.format(key, value)
 
         if value_func and callable(value_func):
-            return '{0:<25}: {1:<30}'.format(
+            return '{0:<35}: {1:<50}'.format(
                 self._key(key),
                 value_func(value)
             )
 
-        return '{0:<25}: {1:<30}'.format(
+        return '{0:<35}: {1:<50}'.format(
             self._key(key),
             value
         )
