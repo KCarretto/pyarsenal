@@ -685,8 +685,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
             for action in group_action.actions:
                 self._output('{0:<30}{1:<50}{2:<50}'.format(
                     self._format_action_status(action.status),
-                    action.target_name,
-                    action.action_id))
+                    self._id(action.target_name),
+                    self._id(action.action_id)))
 
     def CancelGroupAction(self, group_action_id): #pylint: disable=invalid-name
         """
