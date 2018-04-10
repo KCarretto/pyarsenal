@@ -3,7 +3,7 @@ This module contains Action API functions.
 """
 from .objects import Action
 
-def create_action(
+def create_action( # pylint: disable=too-many-arguments
         self,
         target_name,
         action_string,
