@@ -30,6 +30,7 @@ class Action(ArsenalObject): # pylint: disable=too-few-public-methods
     This object represents an Action from the teamserver.
     """
     action_id = None
+    bound_session_id = None
     status = None
     target_name = None
     action_string = None

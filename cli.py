@@ -277,6 +277,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self._output(self._pair('\tstatus', action.status, self._format_action_status))
         self._output(self._pair('\taction', action.action_string, self._yellow))
 
+        if action.bound_session_id:
+            self._output(self._pair('\tbound session', action.bound_session_id, self._id))
+
         if action.response:
             stdout = action.response.get('stdout')
             stderr = action.response.get('stderr')
