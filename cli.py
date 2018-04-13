@@ -306,7 +306,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output(
                 self._red('Could not cancel Action `{}`.'.format(self._id(action_id))))
 
-    def ListActions(self, owner=None, target_name=None, limit=None, offset=None): #pylint: disable=invalid-name
+    def ListActions(self, owner=None, target=None, limit=None, offset=None): #pylint: disable=invalid-name
         """
         This lists all Actions that are currently tracked by the teamserver.
 
@@ -318,7 +318,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         actions = self.client.list_actions(
             owner=owner,
-            target_name=target_name,
+            target_name=target,
             limit=limit,
             offset=offset)
 
@@ -403,6 +403,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         Args:
             name: The name of the Target to search for.
             show-facts: Set True to display all facts.
+            hide-actions: Set this flag to hide the actions for the target.
             show-uuid: Set True to display target UUID.
             show-sessions: Display the target's unarchived sessions.
         """
