@@ -261,7 +261,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
         action_id = self.client.create_action(
             target_name, action_string, bound_session_id, action_id, quick)
         self._output('Action created. \
-        You can track it\'s progress using this action_id: `{}`'.format(self._id(action_id)))
+        You can track it\'s progress using this action_id: {}'.format(self._id(action_id)))
 
     def GetAction(self, action_id): #pylint: disable=invalid-name
         """
@@ -301,7 +301,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
         if cancelled:
             self._output(
-                self._green('Action `{}` successfully cancelled.'.format(self._id(action_id))))
+                self._green('Action {} successfully cancelled.'.format(self._id(action_id))))
         else:
             self._output(
                 self._red('Could not cancel Action `{}`.'.format(self._id(action_id))))
