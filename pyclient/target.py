@@ -24,23 +24,22 @@ def get_target(self, name, **kwargs):
     """
     Returns a Target object from the teamserver.
     """
-    resp = self._get_target_raw(name, kwargs) # pylint: disable=protected-access
-
+    resp = self._get_target_raw(name, **kwargs) # pylint: disable=protected-access
     return Target(resp['target'])
 
-def _get_target_raw(self, name, params):
+def _get_target_raw(self, name, **kwargs):
     """
     Returns the raw response of the GetTarget API call.
     """
     return self.call(
         'GetTarget',
         name=name,
-        include_status=params.get('include_status', True),
-        include_facts=params.get('include_facts', False),
-        include_sessions=params.get('include_sessions', False),
-        include_actions=params.get('include_actions', False),
-        include_groups=params.get('include_groups', False),
-        include_credentials=params.get('include_credentials', False),
+        include_status=kwargs.get('include_status', True),
+        include_facts=kwargs.get('include_facts', False),
+        include_sessions=kwargs.get('include_sessions', False),
+        include_actions=kwargs.get('include_actions', False),
+        include_groups=kwargs.get('include_groups', False),
+        include_credentials=kwargs.get('include_credentials', False),
     )
 
 def rename_target(self, name, new_name):

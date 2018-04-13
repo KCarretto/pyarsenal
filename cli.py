@@ -309,7 +309,10 @@ class CLI(object): #pylint: disable=too-many-public-methods
         This lists all Actions that are currently tracked by the teamserver.
 
         Args:
-            None
+            owner: Filter by the owner of the action.
+            target-name: Filter by the name of the target the action was queued for.
+            limnit: Limit the number of results that are returned.
+            offset: Used in conjunction with limit and defines what offset in the list to start at.
         """
         actions = self.client.list_actions(
             owner=owner,
@@ -385,21 +388,29 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                               Target Methods                                                #
     ###############################################################################################
-    def GetTarget(self, name, show_facts=False, hide_actions=False, show_uuid=False): #pylint: disable=invalid-name
+    def GetTarget( #pylint: disable=invalid-name,too-many-arguments
+            self,
+            name,
+            show_facts=False,
+            hide_actions=False,
+            show_uuid=False,
+            show_sessions=False):
         """
         Fetch information about a Target.
 
         Args:
             name: The name of the Target to search for.
-            show-facts: Set True to display all facts
-            show-uuid: Set True to display target UUID
+            show-facts: Set True to display all facts.
+            show-uuid: Set True to display target UUID.
+            show-sessions: Display the target's unarchived sessions.
         """
         target = self.client.get_target(
             name,
             include_status=True,
             include_groups=True,
             include_actions=not hide_actions,
-            include_facts=True)
+            include_facts=True,
+            include_sessions=show_sessions,)
 
         if target:
             lastseen = datetime.fromtimestamp(target.lastseen).strftime('%Y-%m-%d %H:%M:%S')
@@ -422,6 +433,17 @@ class CLI(object): #pylint: disable=too-many-public-methods
                         if addr != '127.0.0.1' and not addr.startswith('169.254'):
                             ip_addrs.append(addr)
             self._output(self._pair('\tIP Addresses', ', '.join(sorted(ip_addrs))))
+
+            if show_sessions:
+                if target.sessions:
+                    self._output('\n\nSessions:')
+                    for session in target.sessions:
+                        if session:
+                            self._output(self._pair(
+                                self._format_session_status(session.get('status', 'none')),
+                                session.get('session_id', 'unknown'),
+                                self._id
+                            ))
 
             if not hide_actions:
                 if target.actions:
