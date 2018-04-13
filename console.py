@@ -177,13 +177,21 @@ class Executor(threading.Thread):
             self.target_name, 'exec {}'.format(self.cmd), None, None, True)
 
         resp = None
+        start = time.time()
 
         # Poll, waiting for action to complete
         while not resp:
-            action = self.client.get_action(action_id)
-            if hasattr(action, 'response') and action.response:
-                resp = action.response
+            try:
+                action = self.client.get_action(action_id)
+                if hasattr(action, 'response') and action.response:
+                    resp = action.response
+                    break
+                if time.time() > start + 30:
+                    print('Action has timed out.')
+                    break
+            except KeyboardInterrupt:
                 break
+
             time.sleep(1)
 
         print(resp.get('stdout', ''), file=sys.stdout)
@@ -200,10 +208,12 @@ def shell(client, target_name):
     print('\nEntering into arsenal shell. \n \
         Please note commands may take a while to execute, depending on session intervals. \n\n')
 
+    executor = None
+
     while True:
         try:
             text = prompt(
-                'Arsenal # ',
+                'Arsenal [{}] # '.format(target_name),
                 history=history,
                 auto_suggest=AutoSuggestFromHistory(),
             )
@@ -229,9 +239,12 @@ def shell(client, target_name):
         except EOFError:
             break
         except KeyboardInterrupt:
-            break
+            continue
         except Exception:
             break
+
+    if executor and isinstance(executor, Executor):
+        executor.join()
 
     raise ShellExit()
 
