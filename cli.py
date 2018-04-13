@@ -240,7 +240,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     def CreateAction(  #pylint: disable=invalid-name,too-many-arguments
             self,
             target_name,
-            action_string,
+            *action_string,
             bound_session_id=None,
             action_id=None,
             quick=False):
@@ -256,6 +256,8 @@ class CLI(object): #pylint: disable=too-many-public-methods
             quick (optional): Only send to the target's fastest session. Default: False. <bool>
                       Note: This overrides bound_session_id.
         """
+        action_string = ' '.join(action_string)
+
         action_id = self.client.create_action(
             target_name, action_string, bound_session_id, action_id, quick)
         self._output('Action created. \
@@ -671,7 +673,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
     ###############################################################################################
     #                             Group Action Methods                                            #
     ###############################################################################################
-    def CreateGroupAction(self, group_name, action_string, group_action_id=None, quick=False): #pylint: disable=invalid-name
+    def CreateGroupAction(self, group_name, *action_string, group_action_id=None, quick=False): #pylint: disable=invalid-name
         """
         Queue an Action for a Group of Targets.
 
@@ -681,6 +683,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
             group_action_id (optional, unique): Specify a human readable group_action_id. <str>
             quick (optional): Only send to the target's fastest session. Default: False. <bool>
         """
+        action_string = ' '.join(action_string)
         group_action_id = self.client.create_group_action(
             group_name, action_string, group_action_id, quick)
         self._output('Action created. You can track it\'s progress using \
