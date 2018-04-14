@@ -90,6 +90,7 @@ class Target(ArsenalObject): # pylint: disable=too-few-public-methods
     name = None
     status = None
     lastseen = None
+    public_ips = None
     uuid = None
     facts = None
     sessions = None

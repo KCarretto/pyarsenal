@@ -418,10 +418,13 @@ class CLI(object): #pylint: disable=too-many-public-methods
         if target:
             lastseen = datetime.fromtimestamp(target.lastseen).strftime('%Y-%m-%d %H:%M:%S')
             groups = [group.get('name') for group in target.groups]
+            public_ips = target.public_ips if target.public_ips else ['None']
+
             self._output(self._green('\nTarget Found:\n'))
             self._output(self._pair('\tname', target.name, self._id))
             if show_uuid:
                 self._output(self._pair('\tuuid', target.uuid, self._id))
+            self._output(self._pair('\tpublic ips', ', '.join(public_ips), self._yellow))
             self._output(self._pair('\tstatus', target.status, self._format_session_status))
             self._output(self._pair('\tlast seen', lastseen, self._yellow))
             self._output(self._pair('\tgroups', ', '.join(groups), self._id))

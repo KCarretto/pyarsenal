@@ -11,7 +11,7 @@ def create_session( #pylint: disable=too-many-arguments
         interval_delta=None,
         config_dict=None,
         facts=None,
-        agent_version=None):
+        agent_version=None,):
     """
     This method creates an Session, and returns it's session_id.
     """
@@ -44,7 +44,7 @@ def _get_session_raw(self, session_id):
         'GetSession',
         session_id=session_id)
 
-def session_checkin(self, session_id, responses=None, config=None, facts=None):
+def session_checkin(self, session_id, responses=None, config=None, facts=None, public_ip=None):
     """
     Checks in a Session. Optionally you may include any
     responses from Actions that were completed. The API call
@@ -56,7 +56,8 @@ def session_checkin(self, session_id, responses=None, config=None, facts=None):
         session_id=session_id,
         responses=responses,
         config=config,
-        facts=facts)
+        facts=facts,
+        public_ip=public_ip,)
 
     actions = resp.get('actions', [])
 
