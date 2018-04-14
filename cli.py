@@ -497,22 +497,24 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         targets = self.client.list_targets(
             include_status=True,
-            include_facts=False,
+            include_facts=True,
             include_actions=False,
             include_sessions=False,
-            include_groups=True,
+            include_groups=False,
             include_credentials=False)
         if targets:
-            self._output(self._bright('\n{0:<20}{1:<40}{2:<40}').format(
+            self._output(self._bright('\n{0:<20}{1:<40}{2:<40}{3:<40}').format(
                 'Status',
                 'Name',
-                'Groups'))
+                'Public IPs',
+                'Hostname'))
             for target in sorted(targets, key=lambda x: x.name):
-                groups = [group['name'] for group in target.groups]
-                self._output('{0:<30}{1:<50}{2:<50}'.format(
+                public_ips = target.public_ips if target.public_ips else ['None']
+                self._output('{0:<30}{1:<50}{2:<50}{3:<50}'.format(
                     self._format_session_status(target.status),
                     self._id(target.name),
-                    self._green(', '.join(groups) if groups else 'None')
+                    self._green(', '.join(public_ips)),
+                    self._yellow(target.facts.get('hostname', 'unknown')),
                 ))
         else:
             self._output(self._red('No Targets were found.'))

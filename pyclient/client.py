@@ -238,7 +238,7 @@ class ArsenalClient(object):
             params['login_password'] = self.login_password
         try:
             resp = requests.post(self.teamserver_uri, json=params,
-                                 timeout=10).json()
+                                 timeout=30).json()
             if resp.get('error'):
                 parse_error(resp)
             return resp
