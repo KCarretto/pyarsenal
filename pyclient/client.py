@@ -237,8 +237,20 @@ class ArsenalClient(object):
             params['login_username'] = self.login_username
             params['login_password'] = self.login_password
         try:
-            resp = requests.post(self.teamserver_uri, json=params,
-                                 timeout=30).json()
+            headers = {
+                'Connection': 'keep-alive',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept': '*/*',
+                'User-Agent': 'arsenal-api-python-client requests'
+            }
+
+            resp = requests.post(
+                self.teamserver_uri,
+                headers=headers,
+                json=params,
+                timeout=30,
+            ).json()
+
             if resp.get('error'):
                 parse_error(resp)
             return resp

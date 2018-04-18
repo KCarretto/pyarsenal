@@ -256,7 +256,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
             quick (optional): Only send to the target's fastest session. Default: False. <bool>
                       Note: This overrides bound_session_id.
         """
-        action_string = ' '.join(action_string)
+        action_string = ' '.join(str(token) for token in action_string)
 
         action_id = self.client.create_action(
             target_name, action_string, bound_session_id, action_id, quick)
@@ -282,13 +282,15 @@ class CLI(object): #pylint: disable=too-many-public-methods
         if action.bound_session_id:
             self._output(self._pair('\tbound session', action.bound_session_id, self._id))
 
-        if action.response:
+        if action.response and isinstance(action.response, dict):
             stdout = action.response.get('stdout')
             stderr = action.response.get('stderr')
             if stdout:
                 self._output(self._pair('\tstdout', '\n{}'.format(stdout), self._green))
             if stderr:
                 self._output(self._pair('\tstderr', '\n{}'.format(stderr), self._red))
+        elif action.response:
+            self._output(action.response)
 
     def CancelAction(self, action_id): #pylint: disable=invalid-name
         """
@@ -460,7 +462,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
                         key=lambda x: x.get('queue_time', 0),
                         reverse=True)
 
-                    for action in actions:
+                    for action in filter(lambda x: x is not None, actions):
                         self._output(self._pair('\taction_id', action.get('action_id'), self._id))
                         self._output(
                             self._pair('\taction', action.get('action_string'), self._yellow))
@@ -689,7 +691,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
             group_action_id (optional, unique): Specify a human readable group_action_id. <str>
             quick (optional): Only send to the target's fastest session. Default: False. <bool>
         """
-        action_string = ' '.join(action_string)
+        action_string = ' '.join(str(token) for token in action_string)
         group_action_id = self.client.create_group_action(
             group_name, action_string, group_action_id, quick)
         self._output('Action created. You can track it\'s progress using \

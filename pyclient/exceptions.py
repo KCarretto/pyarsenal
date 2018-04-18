@@ -212,5 +212,6 @@ def handle_exceptions(func):
             print('Error: Client encountered unhandled exception')
             print(type(exception))
             print(exception)
+            raise exception
 
     return wrapper

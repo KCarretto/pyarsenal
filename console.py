@@ -186,19 +186,21 @@ class Executor(threading.Thread):
                 if hasattr(action, 'response') and action.response:
                     resp = action.response
                     break
-                if time.time() > start + 30:
-                    print('Action has timed out.')
+                if time.time() > start + 60:
+                    print('Action did not return quickly.\
+                        You can monitor it using this action id: {}'.format(action_id))
                     break
             except KeyboardInterrupt:
                 break
 
             time.sleep(1)
 
-        print(resp.get('stdout', ''), file=sys.stdout)
-        print(resp.get('stderr', ''), file=sys.stderr)
+        if resp:
+            print(resp.get('stdout', ''), file=sys.stdout)
+            print(resp.get('stderr', ''), file=sys.stderr)
 
 
-def shell(client, target_name):
+def shell(client, target_name, prepend=None):
     """
     Join an interactive shell for a target. Still uses the normal beacons, but automatically
     adds the --quick flag to create action, and polls for output.
@@ -225,9 +227,13 @@ def shell(client, target_name):
                 continue
 
             background = False
+
             if text.lower().startswith('&'):
                 text = text[1:]
                 background = True
+
+            if prepend:
+                text = '{} {}'.format(prepend.strip(), text)
 
             executor = Executor(client, target_name, text)
             executor.start()
@@ -267,10 +273,13 @@ def parse_command(client, text):
         raise Reset()
     if cmd.startswith('interact'):
         tokens = cmd.split(' ')
+        prepend=None
         if len(tokens) < 2:
-            print('usage: interact <target name>')
+            print('usage: interact <target name> [prepend command i.e. powershell.exe]')
             raise ShellExit()
-        shell(client, cmd.split(' ')[1])
+        if len(tokens) >= 3:
+            prepend = ' '.join(token.strip() for token in tokens[2:])
+        shell(client,tokens[1],prepend)
     return text
 
 def build_autocomplete(client):
