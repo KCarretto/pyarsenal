@@ -70,6 +70,9 @@ class ArsenalCompleter(Completer): # pylint: disable-all
             'GetTarget': [
                 WordCompleter(self.target_names)
             ],
+            'DeleteGroup': [
+                WordCompleter(self.group_names)
+            ],
             'GetGroup': [
                 WordCompleter(self.group_names)
             ],
