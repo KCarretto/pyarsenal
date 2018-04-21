@@ -82,6 +82,7 @@ class Session(ArsenalObject): # pylint: disable=too-few-public-methods
     status = None
     timestamp = None
     config = None
+    agent_version = 'None Specified'
 
 class Target(ArsenalObject): # pylint: disable=too-few-public-methods
     """

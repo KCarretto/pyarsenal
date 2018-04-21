@@ -364,11 +364,12 @@ class CLI(object): #pylint: disable=too-many-public-methods
         session = self.client.get_session(session_id)
         lastseen = datetime.fromtimestamp(session.timestamp).strftime('%Y-%m-%d %H:%M:%S')
         self._output(self._green('\nSession Found:\n'))
-        self._output(self._pair('\tsession_id', session.session_id, self._id))
-        self._output(self._pair('\ttarget', session.target_name, self._yellow))
-        self._output(self._pair('\tstatus', session.status, self._format_session_status))
+        self._output(self._pair('\tSession ID', session.session_id, self._id))
+        self._output(self._pair('\tTarget', session.target_name, self._yellow))
+        self._output(self._pair('\tStatus', session.status, self._format_session_status))
         self._output(self._pair('\tLast Seen', lastseen))
-        self._output(self._pair('\tconfig', self._format_facts(session.config)))
+        self._output(self._pair('\tAgent Version', session.agent_version, self._purple))
+        self._output(self._pair('\tconfig', '\n{}'.format(self._format_facts(session.config))))
 
     def ListSessions(self, sortby='target_name'): #pylint: disable=invalid-name
         """
