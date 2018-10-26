@@ -510,7 +510,6 @@ class CLI(object): #pylint: disable=too-many-public-methods
         if targets:
             self._output(self._bright('\n{0:<20}{1:<40}{2:<40}{3:<40}').format(
                 'Status',
-                'Last Seen',
                 'Name',
                 'Public IPs',
                 'Hostname'))
