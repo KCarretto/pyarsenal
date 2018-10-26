@@ -8,6 +8,7 @@ from getpass import getpass
 
 import colorama
 import fire
+import time
 
 try:
     # Attempt relative import, will not work if __main__
@@ -509,13 +510,24 @@ class CLI(object): #pylint: disable=too-many-public-methods
         if targets:
             self._output(self._bright('\n{0:<20}{1:<40}{2:<40}{3:<40}').format(
                 'Status',
+                'Last Seen',
                 'Name',
                 'Public IPs',
                 'Hostname'))
+
             for target in sorted(targets, key=lambda x: x.name):
+                lastseen = "never"
+                time_since = int(time.time() - target.lastseen)
+                if time_since < 60:
+                    lastseen = f"{time_since}s ago"
+                elif time_since < 3600:
+                    lastseen = f"{time_since//60}m ago"
+                else:
+                    lastseen = f"{time_since//3600}h ago"
                 public_ips = target.public_ips if target.public_ips else ['None']
-                self._output('{0:<30}{1:<50}{2:<50}{3:<50}'.format(
+                self._output('{0:<30}{1:<30}{2:<50}{3:<50}{4:<50}'.format(
                     self._format_session_status(target.status),
+                    self._bright(lastseen),
                     self._id(target.name),
                     self._green(', '.join(public_ips)),
                     self._yellow(target.facts.get('hostname', 'unknown')),
