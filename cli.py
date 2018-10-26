@@ -517,7 +517,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
             for target in sorted(targets, key=lambda x: x.name):
                 public_ips = target.public_ips if target.public_ips else ['None']
-                self._output('{0:<30}{2:<30}{3:<50}{4:<50}'.format(
+                self._output('{0:<30}{1:<50}{2:<50}{3:<50}'.format(
                     self._format_session_status(target.status),
                     self._id(target.name),
                     self._green(', '.join(public_ips)),
