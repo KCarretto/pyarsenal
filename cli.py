@@ -493,14 +493,17 @@ class CLI(object): #pylint: disable=too-many-public-methods
         self.client.rename_target(name, new_name)
         self._output(self._green('Target renamed successfully.'))
 
-    def ListTargets(self): #pylint: disable=invalid-name
+    def ListTargets(self, show_inactive=False): #pylint: disable=invalid-name
         """
         This lists all Targets that are currently tracked by the teamserver.
 
+        format: --argument-here-no-underscores <value if not a bool>
+
         Args:
-            None
+            show-inactive: Only display missing and inactive targets (default: False)
         """
         targets = self.client.list_targets(
+            show_inactive=show_inactive,
             include_status=True,
             include_facts=True,
             include_actions=False,
