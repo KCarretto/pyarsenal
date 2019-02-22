@@ -1,7 +1,7 @@
 """
 This module contains Auth API functions.
 """
-from .objects import User, Role, APIKey
+from pyarsenal.objects import User, Role, APIKey
 
 def create_user(self, username, password):
     """

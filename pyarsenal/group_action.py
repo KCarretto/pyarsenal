@@ -1,7 +1,7 @@
 """
 This module contains GroupAction API functions.
 """
-from .objects import Action, GroupAction
+from pyarsenal.objects import Action, GroupAction
 
 def create_group_action(self, group_name, action_string, group_action_id=None, quick=False):
     """

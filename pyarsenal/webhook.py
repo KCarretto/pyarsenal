@@ -1,7 +1,7 @@
 """
 This module contains Webhook API functions.
 """
-from .objects import Webhook
+from pyarsenal.objects import Webhook
 
 
 def register_webhook(self, post_url, event_triggers):

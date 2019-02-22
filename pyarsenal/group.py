@@ -1,7 +1,7 @@
 """
 This module contains Group API functions.
 """
-from .objects import Group
+from pyarsenal.objects import Group
 
 def create_group(self, name):
     """

@@ -1,7 +1,7 @@
 """
 This module contains Agent API functions.
 """
-from .objects import Agent
+from pyarsenal.objects import Agent
 
 def register_agent(self, agent_version, supported_actions):
     """

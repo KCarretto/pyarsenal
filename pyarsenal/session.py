@@ -1,7 +1,7 @@
 """
 This module contains Session API functions.
 """
-from .objects import Action, Session
+from pyarsenal.objects import Action, Session
 
 def create_session( #pylint: disable=too-many-arguments
         self,

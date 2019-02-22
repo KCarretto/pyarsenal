@@ -1,7 +1,7 @@
 """
 This module contains Log API functions.
 """
-from .objects import Log
+from pyarsenal.objects import Log
 
 def create_log(
         self,

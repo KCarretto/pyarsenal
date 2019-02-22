@@ -1,7 +1,7 @@
 """
 This module contains Target API functions.
 """
-from .objects import Target
+from pyarsenal.objects import Target
 
 
 def create_target(self, name, uuid, facts):

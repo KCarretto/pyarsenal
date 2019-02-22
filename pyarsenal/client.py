@@ -4,12 +4,15 @@ This module contains shared resources that modules in the library can use.
 from os.path import exists
 
 import requests
-from requests.exceptions import ContentDecodingError, ConnectionError, Timeout #pylint: disable=redefined-builtin
+from requests.exceptions import (
+    ContentDecodingError,
+    ConnectionError,
+    Timeout,
+)  # pylint: disable=redefined-builtin
 
-from .config import TEAMSERVER_URI
-from .exceptions import ServerConnectionError, ServerInternalError, parse_error
+from pyarsenal.exceptions import ServerConnectionError, ServerInternalError, parse_error
 
-from .action import (
+from pyarsenal.action import (
     create_action,
     get_action,
     cancel_action,
@@ -18,7 +21,7 @@ from .action import (
     _list_actions_raw,
     duplicate_action,
 )
-from .group import (
+from pyarsenal.group import (
     create_group,
     get_group,
     add_group_member,
@@ -32,7 +35,7 @@ from .group import (
     remove_group_rule,
     rebuild_group_members,
 )
-from .group_action import (
+from pyarsenal.group_action import (
     create_group_action,
     get_group_action,
     cancel_group_action,
@@ -41,13 +44,9 @@ from .group_action import (
     _list_group_actions_raw,
 )
 
-from .log import (
-    create_log,
-    list_logs,
-    _list_logs_raw,
-)
+from pyarsenal.log import create_log, list_logs, _list_logs_raw
 
-from .session import (
+from pyarsenal.session import (
     create_session,
     get_session,
     session_checkin,
@@ -57,7 +56,7 @@ from .session import (
     _list_sessions_raw,
 )
 
-from .target import (
+from pyarsenal.target import (
     create_target,
     get_target,
     set_target_facts,
@@ -65,10 +64,10 @@ from .target import (
     list_targets,
     _get_target_raw,
     _list_targets_raw,
-    migrate_target
+    migrate_target,
 )
 
-from .auth import (
+from pyarsenal.auth import (
     create_role,
     create_api_key,
     create_user,
@@ -87,23 +86,16 @@ from .auth import (
     revoke_api_key,
 )
 
-from .agent import(
-    register_agent,
-    get_agent,
-    list_agents,
-    unregister_agent,
-)
+from pyarsenal.agent import register_agent, get_agent, list_agents, unregister_agent
 
-from .webhook import(
-    register_webhook,
-    unregister_webhook,
-    list_webhooks,
-)
+from pyarsenal.webhook import register_webhook, unregister_webhook, list_webhooks
+
 
 class ArsenalClient(object):
     """
     This object is used to invoke API functions.
     """
+
     context = None
 
     # Action API
@@ -190,28 +182,31 @@ class ArsenalClient(object):
     unregister_webhook = unregister_webhook
     list_webhooks = list_webhooks
 
-    def __init__(self, **kwargs):
+    def __init__(self, uri: str, api_key_file=None, username=None, password=None, **kwargs):
         """
         Create an instance of the client, which will store authentication information.
 
         Set the 'api_key_file' to enable using an API key
         Set the 'username' and 'password' to use user authentication otherwise.
         """
-        self.teamserver_uri = kwargs.get('teamserver_uri', TEAMSERVER_URI)
+        if not uri:
+            raise ServerConnectionError("Must provide a URI when building an ArsenalClient.")
 
-        api_key_file = kwargs.get('api_key_file')
-        username = kwargs.get('username')
-        password = kwargs.get('password')
+        if not uri.startswith("http"):
+            uri = f"http://{uri}"
+
+        self.teamserver_uri = uri
 
         if api_key_file:
-            with open(api_key_file, 'r') as keyfile:
-                self.api_key = keyfile.readlines()[0].strip().strip('\n')
+            if not self.api_key_exists(api_key_file):
+                print(f"WARN: API key file specified but none found {api_key_file}")
+            with open(api_key_file, "r") as keyfile:
+                self.api_key = keyfile.readlines()[0].strip().strip("\n")
         if username and password:
             self.login_username = username
             self.login_password = password
 
         self.context = self.get_current_context()
-        # TODO: Raise Exception
 
     @staticmethod
     def api_key_exists(api_key_file):
@@ -229,35 +224,33 @@ class ArsenalClient(object):
         for key, value in kwargs.items():
             if value is not None:
                 params[key] = value
-        params['method'] = method
+        params["method"] = method
 
-        if hasattr(self, 'api_key') and self.api_key:
-            params['login_api_key'] = self.api_key
-        elif hasattr(self, 'login_username') and hasattr(self, 'login_password'):
-            params['login_username'] = self.login_username
-            params['login_password'] = self.login_password
+        if hasattr(self, "api_key") and self.api_key:
+            params["login_api_key"] = self.api_key
+        elif hasattr(self, "login_username") and hasattr(self, "login_password"):
+            params["login_username"] = self.login_username
+            params["login_password"] = self.login_password
         try:
             headers = {
-                'Connection': 'keep-alive',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept': '*/*',
-                'User-Agent': 'arsenal-api-python-client requests'
+                "Connection": "keep-alive",
+                "Accept-Encoding": "gzip, deflate",
+                "Accept": "*/*",
+                "User-Agent": "arsenal-api-python-client requests",
             }
 
             resp = requests.post(
-                self.teamserver_uri,
-                headers=headers,
-                json=params,
-                timeout=30,
+                self.teamserver_uri, headers=headers, json=params, timeout=30
             ).json()
 
-            if resp.get('error'):
+            if resp.get("error"):
                 parse_error(resp)
             return resp
         except ContentDecodingError:
             raise ServerInternalError("Error: The teamserver encountered an unexpected error.")
         except Timeout:
             raise ServerInternalError(
-                "Error: The teamserver was unable to handle the request in time.")
+                "Error: The teamserver was unable to handle the request in time."
+            )
         except ConnectionError as exception:
             raise ServerConnectionError("Could not connect to the teamserver. {}".format(exception))

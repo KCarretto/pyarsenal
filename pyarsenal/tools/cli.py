@@ -6,15 +6,16 @@ and may be called from the command line.
 from datetime import datetime
 from getpass import getpass
 
+import argparse
 import colorama
 import fire
 import time
+import os
+import sys
 
-try:
-    # Attempt relative import, will not work if __main__
-    from .pyclient import ArsenalClient, API_KEY_FILE
-except Exception: #pylint: disable=broad-except
-    from pyclient import ArsenalClient, API_KEY_FILE
+from pyarsenal import ArsenalClient, APIException
+
+DEFAULT_ARSENAL_DIR = "~/.arsenal/"
 
 class CLI(object): #pylint: disable=too-many-public-methods
     """
@@ -25,8 +26,9 @@ class CLI(object): #pylint: disable=too-many-public-methods
     _output_lines = []
     _color = True
     _display_output = True
+    _arsenal_dir: str
 
-    def __init__(self, **kwargs):
+    def __init__(self, uri: str, arsenal_dir=DEFAULT_ARSENAL_DIR, api_key_file=None, username=None, password=None, **kwargs):
         """
         Constructor arguments:
         enable_color: Should special characters to enable color be inserted into the output?
@@ -40,22 +42,25 @@ class CLI(object): #pylint: disable=too-many-public-methods
         """
         self._display_output = kwargs.get('display_output', True)
         self._color = kwargs.get('enable_color', True)
+        self._arsenal_dir = os.path.abspath(os.path.expandvars(os.path.expanduser(arsenal_dir)))
 
-        api_key_file = kwargs.get('api_key_file')
-        if ArsenalClient.api_key_exists(api_key_file):
+        if api_key_file and ArsenalClient.api_key_exists(api_key_file):
             self.client = ArsenalClient(
+                uri=uri,
                 api_key_file=api_key_file
             )
         else:
-            self.username = kwargs.get('username')
-            self.password = kwargs.get('password')
-            if not self.username or not self.password:
-                self.username = input("Username: ")
-                self.password = getpass("Password: ")
+            self._username = username if username else input("Username: ") 
+            self._password = password if password else getpass("Password: ")
             self.client = ArsenalClient(
-                username=self.username,
-                password=self.password,
+                uri=uri,
+                username=self._username,
+                password=self._password,
             )
+
+            new_key = input("Login Successful.\nWould you like to generate an API key for future logins? [y/N] ")
+            if new_key.lower() == "y":
+                self.NewLocalAPIKey()
         self._output_lines = []
 
     ###############################################################################################
@@ -234,6 +239,24 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output(self.__getattribute__(api_method).__doc__)
         except AttributeError:
             self._output(self._red('Invalid method.'))
+
+    def NewLocalAPIKey(self): #pylint: disable=invalid-name,too-many-arguments
+        key_path = os.path.join(self._arsenal_dir, ".api_key")
+        try:
+            if not os.path.exists(self._arsenal_dir):
+                os.makedirs(self._arsenal_dir, mode=0o750)
+            with open(key_path, mode="w+") as f:
+                key = self.client.create_api_key()
+                f.write(key)
+            os.chmod(key_path, 0o750)
+            print(f"Successfully generated api key ({key_path})")
+        except IOError as e:
+            print(f"Error saving local key ({key_path}): {e}")
+        except APIException as e:
+            print(f"API error while creating key ({key_path}): {e}")
+        except Exception as e:
+            print(f"Unhandled exception while creating key ({key_path}): {e}")
+
 
     ###############################################################################################
     #                              Action Methods                                                 #
@@ -1123,11 +1146,26 @@ class CLI(object): #pylint: disable=too-many-public-methods
             self._output(self._pair('Post URL', hook.post_url))
             self._output(self._pair('Triggers', ', '.join(hook.triggers)))
 
+def build_cli() -> CLI:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("uri", help="Specify the http(s) endpoint to connect to", nargs="?", default=os.environ.get("API_URI"))
+    parser.add_argument("-k", "--api-key-file", help="Specify the path to an API key file.", default=os.environ.get("API_KEY_FILE"))
+    parser.add_argument("-u", "--api-user", help="The username to connect as.", default=os.environ.get("API_USER"))
+    parser.add_argument("-p", "--api-pass", help="The password to connect with.", default=os.environ.get("API_PASS"))
+    args = parser.parse_args()
+
+    if not args.uri:
+        print("Must specify a teamserver uri (argument or API_URI env) i.e. http://my.teamserver.io/api")
+        sys.exit(1)
+
+    return CLI(uri=args.uri, api_key_file=args.api_key_file, username=args.api_user, password=args.api_pass)
+
+
 def main():
     """
     A main entry point for executing this file as a script.
     """
-    cli = CLI(api_key_file=API_KEY_FILE)
+    cli = build_cli()
     fire.Fire(cli)
 
 if __name__ == '__main__':
