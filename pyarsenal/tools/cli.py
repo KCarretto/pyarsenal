@@ -1148,16 +1148,15 @@ class CLI(object): #pylint: disable=too-many-public-methods
 
 def build_cli() -> CLI:
     parser = argparse.ArgumentParser()
+    default_key = os.path.abspath(os.path.expandvars(os.path.expanduser(os.path.join(DEFAULT_ARSENAL_DIR, ".api_key"))))
     parser.add_argument("uri", help="Specify the http(s) endpoint to connect to", nargs="?", default=os.environ.get("API_URI"))
-    parser.add_argument("-k", "--api-key-file", help="Specify the path to an API key file.", default=os.environ.get("API_KEY_FILE"))
+    parser.add_argument("-k", "--api-key-file", help="Specify the path to an API key file.", default=os.environ.get("API_KEY_FILE", default_key))
     parser.add_argument("-u", "--api-user", help="The username to connect as.", default=os.environ.get("API_USER"))
     parser.add_argument("-p", "--api-pass", help="The password to connect with.", default=os.environ.get("API_PASS"))
     args = parser.parse_args()
 
     if not args.uri:
-        print("Must specify a teamserver uri (argument or API_URI env) i.e. http://my.teamserver.io/api")
-        sys.exit(1)
-
+        args.uri = "http://redteam-arsenal.com"
     return CLI(uri=args.uri, api_key_file=args.api_key_file, username=args.api_user, password=args.api_pass)
 
 

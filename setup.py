@@ -8,7 +8,7 @@ setup(
     url="https://github.com/kcarretto/pyarsenal",
     author="Kyle Carretto",
     author_email="kcarretto@gmail.com",
-    version="1.0.0",
+    version="1.1.1",
     packages=find_packages(),
     install_requires=[
         "prompt-toolkit==1.0.15",
@@ -22,6 +22,6 @@ setup(
             "arsenal-cli=pyarsenal.tools.cli:main",
         ]
     },
-    license=open("./LICENSE").read(),
-    long_description=open("README.md").read(),
+    license="GNU GPLv3",
+    long_description="A python client for the Arsenal Red Team server. https://github.com/kcarretto/arsenal",
 )

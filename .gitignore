@@ -4,6 +4,7 @@ utils*
 *TODO*
 *arsenal_history*
 *arsenal_key*
+init_creds
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

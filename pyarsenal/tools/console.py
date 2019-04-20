@@ -3,6 +3,7 @@ The console is a wrapper around the cli.py client, and provides an interactive t
 """
 from __future__ import unicode_literals
 
+import base64
 import sys
 import threading
 import time
@@ -55,7 +56,7 @@ class ArsenalCompleter(Completer):  # pylint: disable-all
         if "*" in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith("_"), dir(CLI)))
 
-        self._built_ins = ["help", "interact", "exit", "reset"]
+        self._built_ins = ["help", "interact", "exit", "reset", "pyexec"]
 
         self.target_names = autocomplete.get("target_names", [])
         self.group_names = autocomplete.get("group_names", [])
@@ -68,6 +69,7 @@ class ArsenalCompleter(Completer):  # pylint: disable-all
             "interact": [WordCompleter(self.target_names)],
             "reset": [],
             "exit": [],
+            "pyexec": [WordCompleter(self.target_names)],
             "GetTarget": [WordCompleter(self.target_names)],
             "GetGroup": [WordCompleter(self.group_names)],
             "CreateAction": [WordCompleter(self.target_names)],
@@ -253,13 +255,22 @@ def parse_command(client, text):
     Parse the input from the console.
     """
     cmd = text.lower()
+    tokens = cmd.split(" ")
 
     if cmd == "exit":
         exit_arsenal()
     if cmd == "reset":
         raise Reset()
+    if tokens[0] == "pyexec":
+        if len(tokens) < 3:
+            print("usage: pyexec <target name> <python code>")
+            raise ShellExit()
+        target = tokens[1]
+        pycode = base64.b64encode(f"{tokens[2]}".encode("utf-8"))
+        thing = f'CreateAction {target} exec /bin/sh -c \\"python -c \\\\"import base64; pycode = b\\\\"{pycode}\\\\"; cmd = base64.b64decode(pycode); exec(cmd);\\\\"\\"'
+        print(thing)
+        return thing
     if cmd.startswith("interact"):
-        tokens = cmd.split(" ")
         prepend = None
         if len(tokens) < 2:
             print("usage: interact <target name> [prepend command i.e. powershell.exe]")
