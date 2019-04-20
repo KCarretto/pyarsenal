@@ -8,7 +8,7 @@ setup(
     url="https://github.com/kcarretto/pyarsenal",
     author="Kyle Carretto",
     author_email="kcarretto@gmail.com",
-    version="1.1.1",
+    version="1.1.2",
     packages=find_packages(),
     install_requires=[
         "prompt-toolkit==1.0.15",

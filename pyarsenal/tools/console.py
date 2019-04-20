@@ -56,7 +56,20 @@ class ArsenalCompleter(Completer):  # pylint: disable-all
         if "*" in self._api_methods:
             self._api_methods = list(filter(lambda x: not x.startswith("_"), dir(CLI)))
 
-        self._built_ins = ["help", "interact", "exit", "reset", "pyexec"]
+        self._built_ins = [
+            "help",
+            "interact",
+            "exit",
+            "reset",
+            "pyexec",
+            "py3exec",
+            "pyscript",
+            "py3script",
+            "pyexecGroup",
+            "py3execGroup",
+            "py3scriptGroup",
+            "pyscriptGroup",
+        ]
 
         self.target_names = autocomplete.get("target_names", [])
         self.group_names = autocomplete.get("group_names", [])
@@ -70,6 +83,13 @@ class ArsenalCompleter(Completer):  # pylint: disable-all
             "reset": [],
             "exit": [],
             "pyexec": [WordCompleter(self.target_names)],
+            "py3exec": [WordCompleter(self.target_names)],
+            "pyscript": [WordCompleter(self.target_names)],
+            "py3script": [WordCompleter(self.target_names)],
+            "pyexecGroup": [WordCompleter(self.group_names)],
+            "py3execGroup": [WordCompleter(self.group_names)],
+            "pyscriptGroup": [WordCompleter(self.group_names)],
+            "py3scriptGroup": [WordCompleter(self.group_names)],
             "GetTarget": [WordCompleter(self.target_names)],
             "GetGroup": [WordCompleter(self.group_names)],
             "CreateAction": [WordCompleter(self.target_names)],
@@ -266,10 +286,76 @@ def parse_command(client, text):
             print("usage: pyexec <target name> <python code>")
             raise ShellExit()
         target = tokens[1]
-        pycode = base64.b64encode(f"{tokens[2]}".encode("utf-8"))
-        thing = f'CreateAction {target} exec /bin/sh -c \\"python -c \\\\"import base64; pycode = b\\\\"{pycode}\\\\"; cmd = base64.b64decode(pycode); exec(cmd);\\\\"\\"'
-        print(thing)
-        return thing
+        pycode = base64.b64encode(f"{tokens[2]}".encode("ascii")).decode("ascii")
+        exec_code = f"CreateAction {target} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python'\""
+        return exec_code
+    if tokens[0] == "py3exec":
+        if len(tokens) < 3:
+            print("usage: pyexec <target name> <python code>")
+            raise ShellExit()
+        target = tokens[1]
+        pycode = base64.b64encode(f"{tokens[2]}".encode("ascii")).decode("ascii")
+        exec_code = f"CreateAction {target} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python3'\""
+        return exec_code
+    if tokens[0] == "pyscript":
+        if len(tokens) < 3:
+            print("usage: pyexec <target name> </path/to/script_file>")
+            raise ShellExit()
+        target = tokens[1]
+        with open(tokens[2], "r") as f:
+            content = "".join(f.readlines())
+            pycode = base64.b64encode(f"{content}".encode("ascii")).decode("ascii")
+            assign = f"pycode = b\\'{pycode}\\'"
+            cmd = f'python -c \\\\"import base64; {assign}; cmd = base64.b64decode(pycode); exec(cmd);\\\\"'
+            exec_code = f'CreateAction {target} exec "/bin/sh -c \\"{cmd}\\""'
+            return exec_code
+    if tokens[0] == "py3script":
+        if len(tokens) < 3:
+            print("usage: pyexec <target name> </path/to/script_file>")
+            raise ShellExit()
+        target = tokens[1]
+        with open(tokens[2], "r") as f:
+            content = "".join(f.readlines())
+            pycode = base64.b64encode(f"{content}".encode("ascii")).decode("ascii")
+            exec_code = f"CreateAction {target} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python3'\""
+            return exec_code
+    if tokens[0] == "pyexecGroup":
+        if len(tokens) < 3:
+            print("usage: pyexecGroup <group name> <python code>")
+            raise ShellExit()
+        group = tokens[1]
+        pycode = base64.b64encode(f"{tokens[2]}".encode("ascii")).decode("ascii")
+        exec_code = f"CreateGroupAction {group} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python'\""
+        return exec_code
+    if tokens[0] == "py3execGroup":
+        if len(tokens) < 3:
+            print("usage: py3execGroup <group name> <python code>")
+            raise ShellExit()
+        group = tokens[1]
+        pycode = base64.b64encode(f"{tokens[2]}".encode("ascii")).decode("ascii")
+        exec_code = f"CreateGroupAction {group} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python3'\""
+        return exec_code
+    if tokens[0] == "pyscriptGroup":
+        if len(tokens) < 3:
+            print("usage: pyscriptGroup <group name> </path/to/script_file>")
+            raise ShellExit()
+        group = tokens[1]
+        with open(tokens[2], "r") as f:
+            content = "".join(f.readlines())
+            pycode = base64.b64encode(f"{content}".encode("ascii")).decode("ascii")
+            exec_code = f"CreateGroupAction {group} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python'\""
+            return exec_code
+    if tokens[0] == "py3scriptGroup":
+        if len(tokens) < 3:
+            print("usage: pyexec <group name> </path/to/script_file>")
+            raise ShellExit()
+        group = tokens[1]
+        with open(tokens[2], "r") as f:
+            content = "".join(f.readlines())
+            pycode = base64.b64encode(f"{content}".encode("ascii")).decode("ascii")
+            exec_code = f"CreateGroupAction {group} exec \"/bin/sh -c 'echo {pycode} | openssl base64 -d | python3'\""
+            return exec_code
+
     if cmd.startswith("interact"):
         prepend = None
         if len(tokens) < 2:
@@ -342,11 +428,14 @@ def main():
                 auto_suggest=AutoSuggestFromHistory(),
             )
             if text:
-                text = parse_command(cli.client, text)
-                firethread = FireThread(text, cli)
-                firethread.start()
-                firethread.join()
-                print("")
+                try:
+                    text = parse_command(cli.client, text)
+                    firethread = FireThread(text, cli)
+                    firethread.start()
+                    firethread.join()
+                    print("")
+                except FileNotFoundError as e:
+                    print(f"File not found: '{e}'")
         except Reset:
             cli.client.context = cli.client.get_current_context()
             methods = cli.client.context.allowed_api_calls
