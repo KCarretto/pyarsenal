@@ -13,7 +13,14 @@ import time
 import os
 import sys
 
-from pyarsenal import ArsenalClient, APIException
+
+
+try:
+    from pyarsenal import ArsenalClient, APIException
+except ModuleNotFoundError:
+    import_from = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    sys.path.insert(0, import_from)
+    from pyarsenal import ArsenalClient, APIException
 
 DEFAULT_ARSENAL_DIR = "~/.arsenal/"
 
@@ -50,7 +57,7 @@ class CLI(object): #pylint: disable=too-many-public-methods
                 api_key_file=api_key_file
             )
         else:
-            self._username = username if username else input("Username: ") 
+            self._username = username if username else input("Username: ")
             self._password = password if password else getpass("Password: ")
             self.client = ArsenalClient(
                 uri=uri,

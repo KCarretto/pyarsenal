@@ -7,6 +7,7 @@ import base64
 import sys
 import threading
 import time
+import os
 
 import fire
 from prompt_toolkit import prompt
@@ -15,8 +16,14 @@ from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
-from pyarsenal.tools.cli import CLI, build_cli
-from pyarsenal.exceptions import handle_exceptions, PermissionDenied
+try:
+    from pyarsenal.tools.cli import CLI, build_cli
+    from pyarsenal.exceptions import handle_exceptions, PermissionDenied
+except ModuleNotFoundError:
+    import_from = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    sys.path.insert(0, import_from)
+    from pyarsenal.tools.cli import CLI, build_cli
+    from pyarsenal.exceptions import handle_exceptions, PermissionDenied
 
 
 class Reset(Exception):
