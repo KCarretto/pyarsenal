@@ -13,7 +13,7 @@ setup(
     install_requires=[
         "prompt-toolkit==1.0.15",
         "fire==0.1.3",
-        "requests==2.18.4",
+        "requests==2.20.0",
         "colorama==0.3.9",
     ],
     entry_points={
